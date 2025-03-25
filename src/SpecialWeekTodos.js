@@ -111,7 +111,7 @@ export default function SpecialWeekTodos() {
                 checked={todo.status === "done"}
               />
               <span className={`font-semibold text-lg ${todo.status === "done" ? "line-through text-gray-400" : "text-gray-900"}`}>
-                {todo.description}
+                &nbsp;{todo.description}
               </span>
             </div>
             <div className="mt-2 ml-8 text-gray-700 text-sm space-y-1">
@@ -130,6 +130,7 @@ export default function SpecialWeekTodos() {
               )}
               {todo.notes && <div className="italic text-gray-600">📝 {todo.notes}</div>}
             </div>
+            <div><span>&nbsp;</span></div>
           </li>
         ))}
       </ul>
