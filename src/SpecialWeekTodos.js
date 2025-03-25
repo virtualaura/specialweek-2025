@@ -152,7 +152,6 @@ export default function SpecialWeekTodos() {
               )}
               {todo.notes && <div className="todo-detail italic text-gray-600">📝 {todo.notes}</div>}
             </div>
-            <div><span>&nbsp;</span></div>
           </li>
         ))}
       </ul>
