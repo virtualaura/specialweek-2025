@@ -1,75 +1,72 @@
-import React, { useState, useEffect } from 'react'; // Add this import line at the top
-
-// Helper function to parse and calculate block duration
-const getBlockDuration = (start, end) => {
-  const parseTime = (time) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    return hours * 60 + minutes; // convert time to total minutes
-  };
-
-  const startTimeInMinutes = parseTime(start);
-  const endTimeInMinutes = parseTime(end);
-
-  return (endTimeInMinutes - startTimeInMinutes) / 60; // return duration in hours
-};
-
-// Helper function to get block color based on the time of day
-const getBlockColor = (time) => {
-  if (time.includes("Morning")) return "bg-blue-500";
-  if (time.includes("Afternoon")) return "bg-green-500";
-  if (time.includes("Lunch")) return "bg-yellow-500";
-  if (time.includes("Gouter")) return "bg-yellow-100";
-  if (time.includes("Evening")) return "bg-red-500";
-  return "bg-gray-300"; // Default color
-};
+import React from "react";
 
 const ScheduleDisplay = ({ schedule }) => {
+  // Set the scale factor for the block height based on time (e.g., 1 hour = 25px)
+  const scaleFactor = 25;
+
+  // Helper function to calculate the duration of an event
+  const calculateHeight = (start, end) => {
+    const startTime = new Date(`1970-01-01T${start}:00Z`).getTime();
+    const endTime = new Date(`1970-01-01T${end}:00Z`).getTime();
+    const duration = (endTime - startTime) / (1000 * 60 * 60); // Duration in hours
+    return duration * scaleFactor; // Scale by factor (e.g., 25px per hour)
+  };
+
   return (
-    <div className="schedule-container">
-      {/* Iterate through each day in the schedule */}
-      {schedule && schedule.length > 0 ? (
-        schedule.map((day) => (
-          <div key={day.date} className="schedule-day">
-            <div className="schedule-day-name">{day.date}</div>
-            <div className="schedule-bars">
-              {day.blocks && day.blocks.length > 0 ? (
-                day.blocks.map((block, index) => {
-                  // Ensure block.start and block.end are defined before processing
-                  if (!block.start || !block.end) return null;
-
-                  // Calculate block duration in hours
-                  const duration = getBlockDuration(block.start, block.end);
-                  const blockColor = getBlockColor(block.time);
-
-                  return (
-                    <div
-                      key={index}
-                      className={`schedule-block ${blockColor}`}
-                      style={{
-                        height: `${duration * 50}px`, // Scale height by 50px per hour (adjust for proper fit)
-                      }}
-                    >
-                      <div className="block-content">
-                        <div className="event-name">{block.event}</div>
-                        <div className="event-time">{block.time}</div>
-                        <div className="event-location">{block.location}</div>
-                        <div className="event-who">{block.who && block.who.split(";").join(", ")}</div>
-                        <div className="event-cc">{block.cc && block.cc.split(";").join(", ")}</div>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div>No blocks available for this day</div>
-              )}
-            </div>
+    <div style={{ display: "flex", justifyContent: "space-between" }}>
+      {/* Map through the schedule, grouped by day */}
+      {schedule.map((day) => (
+        <div key={day.date} style={{ flex: 1, padding: "0 10px" }}>
+          <h3>{day.date}</h3>
+          <div style={{ position: "relative", paddingTop: "10px" }}>
+            {day.blocks.map((block, index) => (
+              <div
+                key={index}
+                style={{
+                  position: "absolute",
+                  top: calculateHeight("00:00", block.start), // Position based on start time
+                  height: calculateHeight(block.start, block.end), // Height based on duration
+                  left: 0,
+                  right: 0,
+                  padding: "5px",
+                  backgroundColor: getBlockColor(block.event), // Dynamic color based on event type
+                  borderRadius: "5px",
+                  color: "white",
+                  zIndex: index + 1, // Ensure blocks stack correctly
+                }}
+              >
+                <div className="font-semibold">{block.event}</div>
+                <div className="text-sm">{block.time}</div>
+                <div className="text-xs">{block.location}</div>
+              </div>
+            ))}
           </div>
-        ))
-      ) : (
-        <div>No schedule data available</div>
-      )}
+        </div>
+      ))}
     </div>
   );
+};
+
+// Helper function to get the background color for each event
+const getBlockColor = (event) => {
+  switch (event) {
+    case "Workshop":
+      return "#3498db"; // Blue
+    case "Gouter":
+      return "#f1c40f"; // Yellow
+    case "Lunch":
+      return "#e67e22"; // Orange
+    case "Team Meeting":
+      return "#2ecc71"; // Green
+    case "Keynote":
+      return "#9b59b6"; // Purple
+    case "Hackathon":
+      return "#e74c3c"; // Red
+    case "Pitch Event":
+      return "#16a085"; // Teal
+    default:
+      return "#bdc3c7"; // Grey for undefined events
+  }
 };
 
 export default ScheduleDisplay;
