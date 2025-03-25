@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import ScheduleDisplay from "./ScheduleDisplay";
 
-export default function TodoList() {
+export default function SpecialWeekTodos() {
   const [tasks, setTasks] = useState([]);
-  const [schedule, setSchedule] = useState([]); 
+  const [schedule, setSchedule] = useState([]);
   const [filter, setFilter] = useState(null);
 
   useEffect(() => {
+    // Fetch and parse tasks CSV
     async function fetchTasks() {
       const response = await fetch(process.env.PUBLIC_URL + "/tasks.csv");
       const text = await response.text();
@@ -16,43 +17,56 @@ export default function TodoList() {
         skipEmptyLines: true,
         delimiter: ",",
         complete: (result) => {
-          setTasks(result.data.map((task) => ({
+          const formattedTasks = result.data.map((task) => ({
             ...task,
             who: task.who.split(";"),
-          })));
+            due_date: formatDate(task.due_date),  // Format the date
+          }));
+          setTasks(formattedTasks.sort((a, b) => new Date(a.due_date) - new Date(b.due_date))); // Sort tasks by date
         },
       });
     }
-        // Fetch and parse schedule CSV
-        async function fetchSchedule() {
-          const response = await fetch(process.env.PUBLIC_URL + "/schedule.csv");
-          const text = await response.text();
-          Papa.parse(text, {
-            header: true,
-            skipEmptyLines: true,
-            delimiter: ",",
-            complete: (result) => {
-              const formattedSchedule = result.data.reduce((acc, row) => {
-                const { date, time, start, end, event, location } = row;
-    
-                let day = acc.find((day) => day.date === date);
-                if (!day) {
-                  day = { date, blocks: [] };
-                  acc.push(day);
-                }
-    
-                day.blocks.push({ time, start, end, event, location });
-    
-                return acc;
-              }, []);
-              
-              setSchedule(formattedSchedule);  // Update schedule state
-            },
-          });
-        }
+
+    // Fetch and parse schedule CSV
+    async function fetchSchedule() {
+      const response = await fetch(process.env.PUBLIC_URL + "/schedule.csv");
+      const text = await response.text();
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        delimiter: ",",
+        complete: (result) => {
+          const formattedSchedule = result.data.reduce((acc, row) => {
+            const { date, time, start, end, event, location } = row;
+
+            // Format date and time
+            const formattedDate = formatDate(date);
+            let day = acc.find((day) => day.date === formattedDate);
+            if (!day) {
+              day = { date: formattedDate, blocks: [] };
+              acc.push(day);
+            }
+
+            day.blocks.push({ time, start, end, event, location });
+
+            return acc;
+          }, []);
+          
+          setSchedule(formattedSchedule);  // Set the schedule state here
+        },
+      });
+    }
+
     fetchTasks();
     fetchSchedule();
   }, []);
+
+  // Helper function to format dates
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('en-GB', options); // Format as "30 April 2025"
+  };
 
   const filteredTasks = filter ? tasks.filter((task) => task.who.includes(filter)) : tasks;
 
@@ -65,10 +79,10 @@ export default function TodoList() {
         you'll see the information that is relevant for you - either because your feedback is needed, or on an FYI
         basis.
       </h3>
-      
-      {/* The Schedule block */}
+
+      {/* Schedule block */}
       <div id="schedule-block" className="my-6">
-        <ScheduleDisplay schedule={tasks} />
+        <ScheduleDisplay schedule={schedule} /> {/* Pass the schedule to ScheduleDisplay */}
       </div>
 
       {/* Filter buttons */}
@@ -84,7 +98,7 @@ export default function TodoList() {
         </button>
       </div>
 
-      {/* The Todo list */}
+      {/* Todo list */}
       <ul className="list-none space-y-4">
         {filteredTasks.map((todo) => (
           <li key={todo.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
@@ -101,19 +115,21 @@ export default function TodoList() {
               </div>
             </div>
             <div className="mt-2 ml-8 text-gray-700 text-sm space-y-1">
+              {/* Date, Who, Notes */}
               <div>
                 <span className="font-semibold text-gray-900">📅</span> {todo.due_date}
               </div>
-                 <span className="font-semibold text-gray-900">👤 </span> 
-                  {todo.who ? String(todo.who).split(";").join(", ") : ""}
-                </div>
-                {todo.cc && (
+              <div>
+                <span className="font-semibold text-gray-900">👤</span> 
+                {todo.who ? todo.who.join(" ") : ""} {/* Add space between names */}
+              </div>
+              {todo.cc && (
                 <div>
-                  <span className="font-semibold text-gray-900">📢 For Info:</span> {todo.cc}
+                  <span className="font-semibold text-gray-900">📢 For Info:</span> {todo.cc ? todo.cc.split(";").join(" ") : ""}
                 </div>
               )}
               {todo.notes && <div className="italic text-gray-600">📝 {todo.notes}</div>}
-              <div><span>&nbsp;</span></div>
+            </div>
           </li>
         ))}
       </ul>
