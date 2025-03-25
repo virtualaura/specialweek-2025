@@ -1,18 +1,14 @@
 {
   "files": {
-    "main.css": "/virtualaura/specialweek-2025/static/css/main.435d5fe5.chunk.css",
-    "main.js": "/virtualaura/specialweek-2025/static/js/main.554c90a6.chunk.js",
-    "main.js.map": "/virtualaura/specialweek-2025/static/js/main.554c90a6.chunk.js.map",
-    "runtime~main.js": "/virtualaura/specialweek-2025/static/js/runtime~main.4e72accb.js",
-    "runtime~main.js.map": "/virtualaura/specialweek-2025/static/js/runtime~main.4e72accb.js.map",
-    "static/js/2.a7f37d0f.chunk.js": "/virtualaura/specialweek-2025/static/js/2.a7f37d0f.chunk.js",
-    "static/js/2.a7f37d0f.chunk.js.map": "/virtualaura/specialweek-2025/static/js/2.a7f37d0f.chunk.js.map",
-    "static/js/3.ba8b7f13.chunk.js": "/virtualaura/specialweek-2025/static/js/3.ba8b7f13.chunk.js",
-    "static/js/3.ba8b7f13.chunk.js.map": "/virtualaura/specialweek-2025/static/js/3.ba8b7f13.chunk.js.map",
+    "main.css": "/virtualaura/specialweek-2025/static/css/main.c6001462.chunk.css",
+    "main.js": "/virtualaura/specialweek-2025/static/js/main.33b88655.chunk.js",
+    "main.js.map": "/virtualaura/specialweek-2025/static/js/main.33b88655.chunk.js.map",
+    "runtime~main.js": "/virtualaura/specialweek-2025/static/js/runtime~main.3cf3a361.js",
+    "runtime~main.js.map": "/virtualaura/specialweek-2025/static/js/runtime~main.3cf3a361.js.map",
     "index.html": "/virtualaura/specialweek-2025/index.html",
-    "precache-manifest.3f6472af9fb297eeeaec4d010afc2061.js": "/virtualaura/specialweek-2025/precache-manifest.3f6472af9fb297eeeaec4d010afc2061.js",
+    "precache-manifest.1519d32090d880fb65e64dbcad4768d9.js": "/virtualaura/specialweek-2025/precache-manifest.1519d32090d880fb65e64dbcad4768d9.js",
     "service-worker.js": "/virtualaura/specialweek-2025/service-worker.js",
-    "static/css/main.435d5fe5.chunk.css.map": "/virtualaura/specialweek-2025/static/css/main.435d5fe5.chunk.css.map",
+    "static/css/main.c6001462.chunk.css.map": "/virtualaura/specialweek-2025/static/css/main.c6001462.chunk.css.map",
     "static/media/logo.svg": "/virtualaura/specialweek-2025/static/media/logo.06e73328.svg"
   }
 }

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/virtualaura/specialweek-2025/precache-manifest.3f6472af9fb297eeeaec4d010afc2061.js"
+  "/virtualaura/specialweek-2025/precache-manifest.1519d32090d880fb65e64dbcad4768d9.js"
 );
 
 self.addEventListener('message', (event) => {
