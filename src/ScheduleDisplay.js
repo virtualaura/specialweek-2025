@@ -1,40 +1,17 @@
-// CLAUDE
-import React, { useState, useEffect } from 'react';  
-import Papa from 'papaparse';
+import React, { useState, useEffect } from 'react';
 
 const ScheduleDisplay = () => {
   const [scheduleData, setScheduleData] = useState([]);
 
   // Helper function to parse and calculate block duration
   const getBlockDuration = (start, end) => {
-    // Add null/undefined checks
-    if (!start || !end) {
-      console.warn(`Invalid time input: start=${start}, end=${end}`);
-      return 0;
-    }
-
     const parseTime = (time) => {
-      // Trim whitespace and handle potential formatting issues
-      const trimmedTime = time.trim();
-      
-      // Validate time format
-      if (!/^\d{2}:\d{2}$/.test(trimmedTime)) {
-        console.warn(`Invalid time format: ${trimmedTime}`);
-        return 0;
-      }
-
-      const [hours, minutes] = trimmedTime.split(":").map(Number);
+      const [hours, minutes] = time.trim().split(":").map(Number);
       return hours * 60 + minutes; // convert time to total minutes
     };
-
-    try {
-      const startTimeInMinutes = parseTime(start);
-      const endTimeInMinutes = parseTime(end);
-      return endTimeInMinutes - startTimeInMinutes; // return duration in minutes
-    } catch (err) {
-      console.error('Error parsing time:', err);
-      return 0;
-    }
+    const startTimeInMinutes = parseTime(start);
+    const endTimeInMinutes = parseTime(end);
+    return endTimeInMinutes - startTimeInMinutes; // return duration in minutes
   };
 
   // Helper function to get block color based on the event type
@@ -53,34 +30,47 @@ const ScheduleDisplay = () => {
   };
 
   useEffect(() => {
-    // Fetch and parse the CSV file
-    fetch('../schedule.csv')
-      .then(response => response.text())
-      .then(csvText => {
-        // Parse CSV using Papaparse
-        Papa.parse(csvText, {
-          header: true,
-          complete: (results) => {
-            // Group results by day
-            const groupedSchedule = {};
-            results.data.forEach(row => {
-              if (!groupedSchedule[row.day]) {
-                groupedSchedule[row.day] = [];
-              }
-              groupedSchedule[row.day].push(row);
-            });
+    // Directly parse the CSV string
+    const csvText = `day,period,start_time,end_time,event,location
+Tuesday, Morning1, 08:40, 10:10, Workshop, on-site
+Tuesday, Gouter, 10:10, 10:30, Gouter, on-site
+Tuesday, Morning2, 10:30, 12:30, Workshop, on-site
+Tuesday, Lunch, 12:30, 13:30, Lunch, on-site
+Tuesday, Afternoon, 13:30, 17:00, Team Meeting, on-site
+Wednesday, Morning2, 10:30, 12:00, Keynote, on-site
+Thursday, Gouter, 10:10, 10:30, Gouter, on-site
+Thursday, Evening, 17:00, 22:00, Hackathon, on-site
+Friday, Gouter, 10:10, 10:30, Gouter, on-site
+Friday, Afternoon, 14:00, 17:00, Pitch Event, on-site`;
 
-            // Convert grouped schedule to array
-            const processedSchedule = Object.entries(groupedSchedule).map(([day, events]) => ({
-              day,
-              events
-            }));
+    // Parse CSV manually
+    const lines = csvText.split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    const parsedData = lines.slice(1).map(line => {
+      const values = line.split(',').map(v => v.trim());
+      return headers.reduce((obj, header, index) => {
+        obj[header] = values[index];
+        return obj;
+      }, {});
+    });
 
-            setScheduleData(processedSchedule);
-          }
-        });
-      })
-      .catch(error => console.error('Error fetching schedule:', error));
+    // Group by day
+    const groupedSchedule = {};
+    parsedData.forEach(row => {
+      if (!groupedSchedule[row.day]) {
+        groupedSchedule[row.day] = [];
+      }
+      groupedSchedule[row.day].push(row);
+    });
+
+    // Convert grouped schedule to array
+    const processedSchedule = Object.entries(groupedSchedule).map(([day, events]) => ({
+      day,
+      events
+    }));
+
+    setScheduleData(processedSchedule);
   }, []);
 
   // Calculate total minutes in a day for percentage height
