@@ -22,7 +22,35 @@ export default function TodoList() {
         },
       });
     }
+        // Fetch and parse schedule CSV
+        async function fetchSchedule() {
+          const response = await fetch(process.env.PUBLIC_URL + "/schedule.csv");
+          const text = await response.text();
+          Papa.parse(text, {
+            header: true,
+            skipEmptyLines: true,
+            delimiter: ",",
+            complete: (result) => {
+              const formattedSchedule = result.data.reduce((acc, row) => {
+                const { date, time, start, end, event, location } = row;
+    
+                let day = acc.find((day) => day.date === date);
+                if (!day) {
+                  day = { date, blocks: [] };
+                  acc.push(day);
+                }
+    
+                day.blocks.push({ time, start, end, event, location });
+    
+                return acc;
+              }, []);
+              
+              setSchedule(formattedSchedule);  // Update schedule state
+            },
+          });
+        }
     fetchTasks();
+    fetchSchedule();
   }, []);
 
   const filteredTasks = filter ? tasks.filter((task) => task.who.includes(filter)) : tasks;
@@ -59,7 +87,8 @@ export default function TodoList() {
       <ul className="list-none space-y-4">
         {filteredTasks.map((todo) => (
           <li key={todo.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              {/* Checkbox and Description on the same line */}
               <input
                 disabled
                 className="mr-3 h-5 w-5 text-blue-500 border-gray-300 rounded"
@@ -83,6 +112,7 @@ export default function TodoList() {
                 </div>
               )}
               {todo.notes && <div className="italic text-gray-600">📝 {todo.notes}</div>}
+              <div><span>&nbsp;</span></div>
           </li>
         ))}
       </ul>
