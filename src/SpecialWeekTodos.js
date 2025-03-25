@@ -91,8 +91,8 @@ export default function SpecialWeekTodos() {
     <div className="p-4 max-w-lg mx-auto">
       <h1 className="text-xl font-bold mb-4">Special Week 2025 - Schedule and To-Dos</h1>
       <h4>
-        Below please find details for Special Week 2025 planning. In the first block, you'll see the calendar for
-        the week, startung on Tuesday the 13th of May in the morning and finishing Friday the 16th of May in the afternoon. 
+        Below please find details for Special Week 2025 planning. First, you'll see the calendar for
+        the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
         <br/><br/>
         The second block has the to-dos that need to be completed for the week. By clicking on the button below the calendar that shows your name,
         you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
