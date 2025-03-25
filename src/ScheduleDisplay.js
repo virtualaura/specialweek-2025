@@ -25,80 +25,84 @@ const ScheduleDisplay = () => {
       { day: 'Friday', start_time: '14:00', end_time: '17:00', event: 'Pitch Event', location: 'on-site' }
     ];
 
-    // Group by day
-    const groupedSchedule = rawData.reduce((acc, event) => {
-      if (!acc[event.day]) {
-        acc[event.day] = [];
-      }
-      acc[event.day].push(event);
-      return acc;
-    }, {});
+  // Group by day
+  const groupedSchedule = rawData.reduce((acc, event) => {
+    if (!acc[event.day]) {
+      acc[event.day] = [];
+    }
+    acc[event.day].push(event);
+    return acc;
+  }, {});
 
-    // Convert to array 
-    const processedSchedule = Object.entries(groupedSchedule)
-      .map(([day, events]) => ({ day, events }));
+  // Convert to array 
+  const processedSchedule = Object.entries(groupedSchedule)
+    .map(([day, events]) => ({ day, events }));
 
-    setScheduleData(processedSchedule);
-  }, []);
+  setScheduleData(processedSchedule);
+}, []);
 
-  // Color mapping function
-  const getBlockColor = (event) => {
-    const colorMap = {
-      'Workshop': 'blue',
-      'Lunch': 'yellow',
-      'Gouter': 'lightyellow',
-      'Team Meeting': 'green',
-      'Keynote': 'blue',
-      'Hackathon': 'red',
-      'Pitch Event': 'red'
-    };
-    return colorMap[event] || 'lightyellow';
+// Color mapping function
+const getBlockColor = (event) => {
+  const colorMap = {
+    'Workshop': 'blue',
+    'Lunch': 'yellow',
+    'Gouter': 'lightyellow',
+    'Team Meeting': 'green',
+    'Keynote': 'blue',
+    'Hackathon': 'red',
+    'Pitch Event': 'red'
+  };
+  return colorMap[event] || 'lightyellow';
+};
+
+// Convert time to percentage for positioning
+const calculateHeight = (startTime, endTime) => {
+  const timeToMinutes = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
   };
 
-  // Convert time to percentage for positioning
-  const calculateHeight = (startTime, endTime) => {
-    const timeToMinutes = (time) => {
-      const [hours, minutes] = time.split(':').map(Number);
-      return hours * 60 + minutes;
-    };
+  // Define start and end of the day
+  const dayStart = 8.5 * 60;  // 08:30 in minutes
+  const dayEnd = 22 * 60;     // 22:00 in minutes
 
-    const start = timeToMinutes(startTime);
-    const end = timeToMinutes(endTime);
-    const totalDayMinutes = 24 * 60;
-    
-    return {
-      height: `${((end - start) / totalDayMinutes) * 100}%`,
-      top: `${(start / totalDayMinutes) * 100}%`
-    };
+  const start = timeToMinutes(startTime);
+  const end = timeToMinutes(endTime);
+  
+  return {
+    height: `${((end - start) / (dayEnd - dayStart)) * 100}%`,
+    top: `${((start - dayStart) / (dayEnd - dayStart)) * 100}%`
   };
+};
 
-  return (
-    <div className="schedule-container">
-      {scheduleData.map(({ day, events }) => (
-        <div key={day} className="schedule-day">
-          <div className="schedule-day-name">{day}</div>
-          <div className="schedule-bars">
-            {events.map((event, index) => {
-              const positionStyle = calculateHeight(event.start_time, event.end_time);
-              return (
-                <div 
-                  key={index} 
-                  className={`schedule-block ${getBlockColor(event.event)}`}
-                  style={positionStyle}
-                >
-                  <div className="block-content">
-                    <div className="event-name">{event.event}</div>
-                    <div className="event-time">{`${event.start_time} - ${event.end_time}`}</div>
-                    <div className="event-location">{event.location}</div>
+return (
+  <div className="schedule-container">
+    {scheduleData.map(({ day, events }) => (
+      <div key={day} className="schedule-day">
+        <div className="schedule-day-name">{day}</div>
+        <div className="schedule-bars">
+          {events.map((event, index) => {
+            const positionStyle = calculateHeight(event.start_time, event.end_time);
+            return (
+              <div 
+                key={index} 
+                className={`schedule-block ${getBlockColor(event.event)}`}
+                style={positionStyle}
+              >
+                <div className="block-content">
+                  <div className="event-name">
+                    {event.start_time} - {event.end_time} <strong>{event.event}</strong>
                   </div>
+                  <div className="event-location">{event.location}</div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    ))}
+  </div>
+);
 };
 
 export default ScheduleDisplay;
