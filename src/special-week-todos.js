@@ -34,6 +34,9 @@ export default function TodoList() {
         for the week. By clicking on your name, you'll see the infromation that is relevant for you - either because
         your feedback is needed, or on a FYI basis. 
       </h3>
+      <div id="schedule-block" className="my-6">
+        <ScheduleDisplay schedule={schedule} />
+      </div>
       <table class="w-full border-collapse">
         <thead>
             <tr class="bg-gray-200">
