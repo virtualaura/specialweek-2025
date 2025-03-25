@@ -1,38 +1,50 @@
 import React from "react";
 
-const ScheduleDisplay = ({ schedule }) => {
-  // Set the scale factor for the block height based on time (e.g., 1 hour = 25px)
-  const scaleFactor = 25;
-
   // Helper function to calculate the duration of an event
-  const calculateHeight = (start, end) => {
+const calculateHeight = (start, end) => {
     const startTime = new Date(`1970-01-01T${start}:00Z`).getTime();
     const endTime = new Date(`1970-01-01T${end}:00Z`).getTime();
     const duration = (endTime - startTime) / (1000 * 60 * 60); // Duration in hours
-    return duration * scaleFactor; // Scale by factor (e.g., 25px per hour)
-  };
+    return duration * 15; // Adjusted scale factor
+};
+
+  // Organize schedule data into grouped columns by "date"
+const groupByDate = (schedule) => {
+  return schedule.reduce((acc, block) => {
+    if (!acc[block.date]) {
+      acc[block.date] = [];
+    }
+    acc[block.date].push(block);
+    return acc;
+  }, {});
+};
+
+const ScheduleDisplay = ({ schedule }) => {
+  const groupedSchedule = groupByDate(schedule);
+  const dates = Object.keys(groupedSchedule);
 
   return (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
-      {/* Map through the schedule, grouped by day */}
-      {schedule.map((day) => (
-        <div key={day.date} style={{ flex: 1, padding: "0 10px" }}>
-          <h3>{day.date}</h3>
-          <div style={{ position: "relative", paddingTop: "10px" }}>
-            {day.blocks.map((block, index) => (
+    <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+      {/* Render each date as a column */}
+      {dates.map((day) => (
+        <div key={day} style={{ flex: 1, minWidth: "150px", padding: "10px", border: "1px solid #ccc" }}>
+          <h3 style={{ textAlign: "center", marginBottom: "10px" }}>{day}</h3>
+          <div style={{ position: "relative", height: "400px", background: "#f9f9f9", padding: "5px" }}>
+            {groupedSchedule[day].map((block, index) => (
               <div
                 key={index}
                 style={{
                   position: "absolute",
                   top: calculateHeight("00:00", block.start), // Position based on start time
-                  height: calculateHeight(block.start, block.end), // Height based on duration
-                  left: 0,
-                  right: 0,
+                  height: calculateHeight(block.start, block.end), // Height scaled
+                  width: "100%",
                   padding: "5px",
-                  backgroundColor: getBlockColor(block.event), // Dynamic color based on event type
+                  backgroundColor: getBlockColor(block.event),
                   borderRadius: "5px",
                   color: "white",
-                  zIndex: index + 1, // Ensure blocks stack correctly
+                  boxSizing: "border-box",
+                  textAlign: "center",
+                  fontSize: "12px",
                 }}
               >
                 <div className="font-semibold">{block.event}</div>
@@ -47,26 +59,18 @@ const ScheduleDisplay = ({ schedule }) => {
   );
 };
 
-// Helper function to get the background color for each event
+// Assign colors to event types
 const getBlockColor = (event) => {
-  switch (event) {
-    case "Workshop":
-      return "#3498db"; // Blue
-    case "Gouter":
-      return "#f1c40f"; // Yellow
-    case "Lunch":
-      return "#e67e22"; // Orange
-    case "Team Meeting":
-      return "#2ecc71"; // Green
-    case "Keynote":
-      return "#9b59b6"; // Purple
-    case "Hackathon":
-      return "#e74c3c"; // Red
-    case "Pitch Event":
-      return "#16a085"; // Teal
-    default:
-      return "#bdc3c7"; // Grey for undefined events
-  }
+  const colors = {
+    Workshop: "#3498db",
+    Gouter: "#f1c40f",
+    Lunch: "#e67e22",
+    "Team Meeting": "#2ecc71",
+    Keynote: "#9b59b6",
+    Hackathon: "#e74c3c",
+    "Pitch Event": "#16a085",
+  };
+  return colors[event] || "#bdc3c7";
 };
 
 export default ScheduleDisplay;
