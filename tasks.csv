@@ -1,0 +1,6 @@
+status,due_date,who,description,notes
+not done,2025-04-01,Kim,Complete UI design,Ensure consistency
+done,2025-04-03,Julia,Write project documentation,Include API section
+not done,2025-04-05,Kim;Julia,Set up authentication,OAuth with Google
+not done,2025-04-07,Kim,Deploy backend,Use latest version
+done,2025-04-10,Julia,Test user login,Check edge cases
