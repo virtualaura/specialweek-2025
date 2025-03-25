@@ -2,11 +2,25 @@ import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import ScheduleDisplay from "./ScheduleDisplay";
 
+// Helper function to extract unique names from the 'who' and 'cc' fields
+const getUniqueNames = (tasks) => {
+  const names = new Set();
+  tasks.forEach((task) => {
+    if (task.who) {
+      task.who.forEach((name) => names.add(name.trim())); // Add each unique 'who' name
+    }
+    if (task.cc) {
+      task.cc.split(";").forEach((name) => names.add(name.trim())); // Add each unique 'cc' name
+    }
+  });
+  return [...names];
+};
 
 export default function SpecialWeekTodos() {
   const [tasks, setTasks] = useState([]);
   const [schedule, setSchedule] = useState([]);
   const [filter, setFilter] = useState(null);
+  const [names, setNames] = useState([]);
 
   useEffect(() => {
     // Fetch and parse tasks CSV
@@ -24,6 +38,7 @@ export default function SpecialWeekTodos() {
             due_date: formatDate(task.due_date),  // Format the date
           }));
           setTasks(formattedTasks.sort((a, b) => new Date(a.due_date) - new Date(b.due_date))); // Sort tasks by date
+          setNames(getUniqueNames(formattedTasks)); // Extract unique names for the filter buttons
         },
       });
     }
@@ -69,6 +84,7 @@ export default function SpecialWeekTodos() {
     return date.toLocaleDateString('en-GB', options); // Format as "30 April 2025"
   };
 
+  // Filter tasks based on the selected filter
   const filteredTasks = filter ? tasks.filter((task) => task.who.includes(filter)) : tasks;
 
   return (
@@ -86,17 +102,20 @@ export default function SpecialWeekTodos() {
         <ScheduleDisplay schedule={schedule} /> {/* Pass the schedule to ScheduleDisplay */}
       </div>
 
-      {/* Filter buttons */}
+      {/* Dynamic Filter buttons */}
       <div className="mb-4">
         <button className="mr-2 px-3 py-1 bg-blue-500 text-white rounded" onClick={() => setFilter(null)}>
           All
         </button>
-        <button className="mr-2 px-3 py-1 bg-gray-500 text-white rounded" onClick={() => setFilter("Kim")}>
-          Kim
-        </button>
-        <button className="px-3 py-1 bg-gray-500 text-white rounded" onClick={() => setFilter("Julia")}>
-          Julia
-        </button>
+        {names.map((name) => (
+          <button
+            key={name}
+            className="mr-2 px-3 py-1 bg-gray-500 text-white rounded"
+            onClick={() => setFilter(name)}
+          >
+            {name}
+          </button>
+        ))}
       </div>
 
       {/* Todo list */}
@@ -117,19 +136,19 @@ export default function SpecialWeekTodos() {
             </div>
             <div className="mt-2 ml-8 text-gray-700 text-sm space-y-1">
               {/* Date, Who, Notes */}
-              <div>
+              <div className="todo-detail">
                 <span className="font-semibold text-gray-900">📅</span> {todo.due_date}
               </div>
-              <div>
+              <div className="todo-detail">
                 <span className="font-semibold text-gray-900">👤</span> 
                 {todo.who ? todo.who.join(" ") : ""} {/* Add space between names */}
               </div>
               {todo.cc && (
-                <div>
+                <div className="todo-detail">
                   <span className="font-semibold text-gray-900">📢 </span> {todo.cc ? todo.cc.split(";").join(" ") : ""}
                 </div>
               )}
-              {todo.notes && <div className="italic text-gray-600">📝 {todo.notes}</div>}
+              {todo.notes && <div className="todo-detail italic text-gray-600">📝 {todo.notes}</div>}
             </div>
             <div><span>&nbsp;</span></div>
           </li>
