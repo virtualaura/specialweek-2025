@@ -25,16 +25,13 @@ const getBlockColor = (time) => {
 
 const ScheduleDisplay = ({ schedule }) => {
   return (
-    <div className="flex flex-wrap">
-      {/* Schedule Display */}
+    <div className="schedule-container">
+      {/* Iterate through each day in the schedule */}
       {schedule && schedule.length > 0 ? (
         schedule.map((day) => (
-          <div
-            key={day.date}
-            className="schedule-day flex flex-col w-1/4 p-2" // Each day takes 1/4 of the width
-          >
-            <div className="schedule-day-name font-semibold text-xl">{day.date}</div>
-            <div className="schedule-bars flex flex-col">
+          <div key={day.date} className="schedule-day">
+            <div className="schedule-day-name">{day.date}</div>
+            <div className="schedule-bars">
               {day.blocks && day.blocks.length > 0 ? (
                 day.blocks.map((block, index) => {
                   // Ensure block.start and block.end are defined before processing
@@ -47,19 +44,17 @@ const ScheduleDisplay = ({ schedule }) => {
                   return (
                     <div
                       key={index}
-                      className={`schedule-block ${blockColor} p-2 my-1 rounded`}
+                      className={`schedule-block ${blockColor}`}
                       style={{
-                        height: `${duration * 100}px`, // Set height based on duration (scaled)
+                        height: `${duration * 50}px`, // Scale height by 50px per hour (adjust for proper fit)
                       }}
                     >
-                      <div className="font-semibold text-white">{block.event}</div>
-                      <div className="text-sm text-white">{block.time}</div>
-                      <div className="text-xs text-white">{block.location}</div>
-                      <div className="text-xs text-white">
-                        {block.who && block.who.split(";").join(", ")}
-                      </div>
-                      <div className="text-xs text-white">
-                        {block.cc && block.cc.split(";").join(", ")}
+                      <div className="block-content">
+                        <div className="event-name">{block.event}</div>
+                        <div className="event-time">{block.time}</div>
+                        <div className="event-location">{block.location}</div>
+                        <div className="event-who">{block.who && block.who.split(";").join(", ")}</div>
+                        <div className="event-cc">{block.cc && block.cc.split(";").join(", ")}</div>
                       </div>
                     </div>
                   );

@@ -146,3 +146,109 @@ ul {
   ul {
     padding-inline-start: 10px;
   }
+
+  /* Container for the entire schedule */
+.schedule-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 equal columns for each day */
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Styling for each day */
+.schedule-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+/* Day name */
+.schedule-day-name {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* Bars for events */
+.schedule-bars {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+}
+
+/* Each individual event block */
+.schedule-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  padding: 10px;
+  color: white;
+  width: 100%;
+}
+
+/* Styling for blue blocks (morning events) */
+.schedule-block.blue {
+  background-color: #1D4ED8;
+}
+
+/* Styling for green blocks (afternoon events) */
+.schedule-block.green {
+  background-color: #10B981;
+}
+
+/* Styling for yellow blocks (lunch events) */
+.schedule-block.yellow {
+  background-color: #F59E0B;
+}
+
+/* Styling for lightyellow blocks (gouter events) */
+.schedule-block.lightyellow {
+  background-color: #FEE2E2;
+}
+
+/* Styling for red blocks (evening events) */
+.schedule-block.red {
+  background-color: #EF4444;
+}
+
+/* Content inside each block */
+.block-content {
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Event name */
+.event-name {
+  font-weight: bold;
+}
+
+/* Event time */
+.event-time {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Event location */
+.event-location {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Event who list */
+.event-who {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Event cc list */
+.event-cc {
+  font-size: 12px;
+  margin-top: 5px;
+}
