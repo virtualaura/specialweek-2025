@@ -23,28 +23,37 @@ const getBlockColor = (time) => {
   return "bg-gray-300"; // Default color
 };
 
-const ScheduleDisplay = ({ schedule }) => {
+const CalendarDisplay = ({ schedule }) => {
   return (
-    <div className="schedule-container">
-      {schedule && schedule.length > 0 ? (
-        schedule.map((day) => (
-          <div key={day.date} className="schedule-day">
-            <div className="schedule-day-name">{day.date}</div>
-            <div className="schedule-bars">
-              {day.blocks && day.blocks.length > 0 ? (
-                day.blocks.map((block, index) => {
-                  // Ensure block.start and block.end are defined before processing
-                  if (!block.start || !block.end) return null;
+    <div className="calendar-container">
+      <div className="days-of-week">
+        <div className="day">Tuesday</div>
+        <div className="day">Wednesday</div>
+        <div className="day">Thursday</div>
+        <div className="day">Friday</div>
+      </div>
+      <div className="schedule">
+        {schedule && schedule.length > 0 ? (
+          schedule.map((day) => (
+            <div key={day.date} className="day-column">
+              <div className="schedule-day-name">{day.date}</div>
+              <div className="schedule-bars">
+                {day.blocks && day.blocks.length > 0 ? (
+                  day.blocks.map((block, index) => {
+                    // Ensure block.start and block.end are defined before processing
+                    if (!block.start || !block.end) return null;
 
-                  // Calculate block duration in hours
-                  const duration = getBlockDuration(block.start, block.end);
-                  const blockColor = getBlockColor(block.time);
-  
+                    // Calculate block duration in hours
+                    const duration = getBlockDuration(block.start, block.end);
+                    const blockColor = getBlockColor(block.time);
+
                     return (
                       <div
                         key={index}
                         className={`schedule-block ${blockColor} p-2 my-1 rounded`}
-                        style={{ width: `${duration * 100}px` }} // Width is based on duration
+                        style={{
+                          height: `${duration * 50}px`, // Height based on duration
+                        }}
                       >
                         <div className="font-semibold text-white">{block.event}</div>
                         <div className="text-sm text-white">{block.time}</div>
@@ -53,16 +62,17 @@ const ScheduleDisplay = ({ schedule }) => {
                     );
                   })
                 ) : (
-                  <div>No blocks available for this day</div>
+                  <div>No events for this day</div>
                 )}
               </div>
             </div>
           ))
-      ) : (
-        <div>No schedule data available</div>
-      )}
+        ) : (
+          <div>No schedule data available</div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default ScheduleDisplay;
+export default CalendarDisplay;
