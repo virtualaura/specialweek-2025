@@ -4,6 +4,7 @@ import ScheduleDisplay from "./ScheduleDisplay";
 
 export default function TodoList() {
   const [tasks, setTasks] = useState([]);
+  const [schedule, setSchedule] = useState([]); 
   const [filter, setFilter] = useState(null);
 
   useEffect(() => {
