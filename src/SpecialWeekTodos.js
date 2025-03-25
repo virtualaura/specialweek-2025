@@ -89,12 +89,14 @@ export default function SpecialWeekTodos() {
 
   return (
     <div className="p-4 max-w-lg mx-auto">
-      <h1 className="text-xl font-bold mb-4">Special Week 2025 - Plan and To-Dos</h1>
+      <h1 className="text-xl font-bold mb-4">Special Week 2025 - Schedule and To-Dos</h1>
       <h3>
         Below please find details for Special Week 2025 planning. In the first block, you'll see the calendar for
-        the week. The second section has the to-dos that need to be completed for the week. By clicking on your name,
-        you'll see the information that is relevant for you - either because your feedback is needed, or on an FYI
-        basis.
+        the week, startung on Tuesday the 13th of May in the morning and finishing Friday the 16th of May in the afternoon. 
+        <br/>
+        The second block has the to-dos that need to be completed for the week. By clicking on your name,
+        you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
+        basis (📢).
       </h3>
 
       {/* Schedule block */}

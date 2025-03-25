@@ -1,19 +1,26 @@
 import React from "react";
 
-  // Helper function to calculate the duration of an event
-const calculateHeight = (start, end) => {
-    const startTime = new Date(`1970-01-01T${start}:00Z`).getTime();
-    const endTime = new Date(`1970-01-01T${end}:00Z`).getTime();
-    const duration = (endTime - startTime) / (1000 * 60 * 60); // Duration in hours
-    return duration * 15; // Adjusted scale factor
+// Convert "HH:mm" to minutes since midnight
+const timeToMinutes = (time) => {
+  const [hours, minutes] = time.split(":").map(Number);
+  return hours * 60 + minutes;
 };
 
-  // Organize schedule data into grouped columns by "date"
+// Calculate event height (scaled down further)
+const calculateHeight = (start, end) => {
+  const duration = timeToMinutes(end) - timeToMinutes(start);
+  return (duration / 60) * 12; // Adjusted scale factor
+};
+
+// Position events properly within the column
+const calculateTop = (start) => {
+  return (timeToMinutes(start) / 1440) * 400; // Assuming 400px total height
+};
+
+// Group events by date
 const groupByDate = (schedule) => {
   return schedule.reduce((acc, block) => {
-    if (!acc[block.date]) {
-      acc[block.date] = [];
-    }
+    if (!acc[block.date]) acc[block.date] = [];
     acc[block.date].push(block);
     return acc;
   }, {});
@@ -25,7 +32,6 @@ const ScheduleDisplay = ({ schedule }) => {
 
   return (
     <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-      {/* Render each date as a column */}
       {dates.map((day) => (
         <div key={day} style={{ flex: 1, minWidth: "150px", padding: "10px", border: "1px solid #ccc" }}>
           <h3 style={{ textAlign: "center", marginBottom: "10px" }}>{day}</h3>
@@ -35,8 +41,8 @@ const ScheduleDisplay = ({ schedule }) => {
                 key={index}
                 style={{
                   position: "absolute",
-                  top: calculateHeight("00:00", block.start), // Position based on start time
-                  height: calculateHeight(block.start, block.end), // Height scaled
+                  top: calculateTop(block.start) + "px",
+                  height: calculateHeight(block.start, block.end) + "px",
                   width: "100%",
                   padding: "5px",
                   backgroundColor: getBlockColor(block.event),
