@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
+import ScheduleDisplay from "./ScheduleDisplay";
 
 export default function TodoList() {
   const [tasks, setTasks] = useState([]);
