@@ -125,7 +125,7 @@ export default function SpecialWeekTodos() {
               </div>
               {todo.cc && (
                 <div>
-                  <span className="font-semibold text-gray-900">📢 For Info:</span> {todo.cc ? todo.cc.split(";").join(" ") : ""}
+                  <span className="font-semibold text-gray-900">📢 </span> {todo.cc ? todo.cc.split(";").join(" ") : ""}
                 </div>
               )}
               {todo.notes && <div className="italic text-gray-600">📝 {todo.notes}</div>}
