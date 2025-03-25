@@ -25,96 +25,98 @@ const ScheduleDisplay = () => {
       { day: 'Friday', start_time: '14:00', end_time: '17:00', event: 'Pitch Event', location: 'on-site' }
     ];
 
- // Group by day
- const groupedSchedule = rawData.reduce((acc, event) => {
-  if (!acc[event.day]) {
-    acc[event.day] = [];
-  }
-  acc[event.day].push(event);
-  return acc;
-}, {});
+    // Group by day
+    const groupedSchedule = rawData.reduce((acc, event) => {
+      if (!acc[event.day]) {
+        acc[event.day] = [];
+      }
+      acc[event.day].push(event);
+      return acc;
+    }, {});
 
-// Convert to array 
-const processedSchedule = Object.entries(groupedSchedule)
-  .map(([day, events]) => ({ day, events }));
+    // Convert to array 
+    const processedSchedule = Object.entries(groupedSchedule)
+      .map(([day, events]) => ({ day, events }));
 
-setScheduleData(processedSchedule);
-}, []);
+    setScheduleData(processedSchedule);
+  }, []);
 
-// Color mapping function
-const getBlockColor = (event) => {
-const colorMap = {
-  'Workshop': 'blue',
-  'Lunch': 'yellow',
-  'Gouter': 'lightyellow',
-  'Team Meeting': 'green',
-  'Keynote': 'blue',
-  'Hackathon': 'red',
-  'Pitch Event': 'red'
-};
-return colorMap[event] || 'lightyellow';
-};
-
-// Convert time to pixel height
-const calculateHeight = (startTime, endTime, isHackathon = false) => {
-const timeToMinutes = (time) => {
-  const [hours, minutes] = time.split(':').map(Number);
-  return hours * 60 + minutes;
-};
-
-const start = timeToMinutes(startTime);
-const end = timeToMinutes(endTime);
-const duration = end - start;
-
-// Base scaling: 5 pixels per 15 minutes
-const pixelsPerQuarter = 5;
-
-// Special handling for Hackathon
-if (isHackathon) {
-  return {
-    height: `${(duration / 15) * pixelsPerQuarter * 2}px`, // Double scaling
-    top: `${((start - 8.5 * 60) / 15) * pixelsPerQuarter}px`
+  // Color mapping function
+  const getBlockColor = (event) => {
+    const colorMap = {
+      'Workshop': 'blue',
+      'Lunch': 'yellow',
+      'Gouter': 'lightyellow',
+      'Team Meeting': 'green',
+      'Keynote': 'blue',
+      'Hackathon': 'red',
+      'Pitch Event': 'red'
+    };
+    return colorMap[event] || 'lightyellow';
   };
-}
 
-return {
-  height: `${(duration / 15) * pixelsPerQuarter}px`,
-  top: `${((start - 8.5 * 60) / 15) * pixelsPerQuarter}px`
-};
-};
+  // Convert time to pixel height with improved scaling
+  const calculateHeight = (startTime, endTime, isHackathon = false) => {
+    const timeToMinutes = (time) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
 
-return (
-<div className="schedule-container">
-  {scheduleData.map(({ day, events }) => (
-    <div key={day} className="schedule-day">
-      <div className="schedule-day-name">{day}</div>
-      <div className="schedule-bars">
-        {events.map((event, index) => {
-          const positionStyle = calculateHeight(
-            event.start_time, 
-            event.end_time, 
-            event.event === 'Hackathon'
-          );
-          return (
-            <div 
-              key={index} 
-              className={`schedule-block ${getBlockColor(event.event)}`}
-              style={positionStyle}
-            >
-              <div className="block-content">
-                <div className="event-name">
-                  {event.start_time} - {event.end_time} <strong>{event.event}</strong>
+    const start = timeToMinutes(startTime);
+    const end = timeToMinutes(endTime);
+    const duration = end - start;
+
+    // Base minimum block height
+    const minBlockHeight = 40;
+    // Scaling factor
+    const pixelsPerQuarter = 10;
+    // Ensure minimum height while scaling
+    const calculatedHeight = Math.max(
+      minBlockHeight, 
+      Math.min(
+        (duration / 15) * pixelsPerQuarter,
+        isHackathon ? 3.5 * 60 * (pixelsPerQuarter / 15) : Infinity
+      )
+    );
+
+    return {
+      height: `${calculatedHeight}px`,
+      top: `${((start - 8.5 * 60) / 15) * pixelsPerQuarter}px`
+    };
+  };
+
+  return (
+    <div className="schedule-container">
+      {scheduleData.map(({ day, events }) => (
+        <div key={day} className="schedule-day">
+          <div className="schedule-day-name">{day}</div>
+          <div className="schedule-bars">
+            {events.map((event, index) => {
+              const positionStyle = calculateHeight(
+                event.start_time, 
+                event.end_time, 
+                event.event === 'Hackathon'
+              );
+              return (
+                <div 
+                  key={index} 
+                  className={`schedule-block ${getBlockColor(event.event)}`}
+                  style={positionStyle}
+                >
+                  <div className="block-content">
+                    <div className="event-name">
+                      {event.start_time} - {event.end_time} <strong>{event.event}</strong>
+                    </div>
+                    <div className="event-location">{event.location}</div>
+                  </div>
                 </div>
-                <div className="event-location">{event.location}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
-  ))}
-</div>
-);
+  );
 };
 
 export default ScheduleDisplay;

@@ -176,7 +176,7 @@ ul {
     border: 1px solid #ccc;
     border-radius: 8px;
     overflow: hidden;
-    min-height: 400px; /* Minimum height */
+    min-height: 500px; /* Increased minimum height */
   }
   
   .schedule-day-name {
@@ -189,14 +189,14 @@ ul {
   .schedule-bars {
     position: relative;
     flex-grow: 1;
-    padding: 10px;
-    min-height: 350px; /* Ensure some minimum height */
+    padding: 10px 0; /* Removed horizontal padding */
   }
   
   .schedule-block {
     position: absolute;
-    width: calc(100% - 20px);
-    margin: 0 10px;
+    width: calc(100% - 20px); /* Subtract padding */
+    left: 10px; /* Center in column */
+    margin-bottom: 5px; /* Space between blocks */
     border-radius: 6px;
     padding: 10px;
     display: flex;
@@ -227,38 +227,3 @@ ul {
   .schedule-block.yellow { background-color: #F59E0B; color: black; }
   .schedule-block.lightyellow { background-color: #FEE2E2; color: black; }
   .schedule-block.red { background-color: #EF4444; color: white; }
-
-/* Content inside each block */
-.block-content {
-  text-align: center;
-  font-size: 14px;
-}
-
-/* Event name */
-.event-name {
-  font-weight: bold;
-}
-
-/* Event time */
-.event-time {
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* Event location */
-.event-location {
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* Event who list */
-.event-who {
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* Event cc list */
-.event-cc {
-  font-size: 12px;
-  margin-top: 5px;
-}
