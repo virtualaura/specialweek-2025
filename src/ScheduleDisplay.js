@@ -19,7 +19,7 @@ const ScheduleDisplay = () => {
     const colorMap = {
       'Workshop': 'bg-blue-500',
       'Lunch': 'bg-yellow-500',
-      'Gouter': 'bg-yellow-100',
+      'Gouter': 'bg-yellow-200',
       'Team Meeting': 'bg-green-500',
       'Keynote': 'bg-purple-500',
       'Hackathon': 'bg-red-500',
@@ -73,30 +73,48 @@ Friday, Afternoon, 14:00, 17:00, Pitch Event, on-site`;
     setScheduleData(processedSchedule);
   }, []);
 
-  // Calculate total minutes in a day for percentage height
-  const TOTAL_DAY_MINUTES = 24 * 60;
+  // Calculate the time of the first and last events across all days
+  const calculateTimeRange = () => {
+    let earliestTime = Infinity;
+    let latestTime = -Infinity;
+
+    scheduleData.forEach(({ events }) => {
+      events.forEach(event => {
+        const startMinutes = getBlockDuration('00:00', event.start_time);
+        const endMinutes = getBlockDuration('00:00', event.end_time);
+        earliestTime = Math.min(earliestTime, startMinutes);
+        latestTime = Math.max(latestTime, endMinutes);
+      });
+    });
+
+    return { earliestTime, latestTime };
+  };
+
+  // Calculate total minutes in the day
+  const { earliestTime = 0, latestTime = 1440 } = scheduleData.length > 0 ? calculateTimeRange() : {};
+  const TOTAL_DAY_MINUTES = latestTime - earliestTime;
 
   return (
-    <div className="flex w-full h-screen p-4 space-x-4">
+    <div className="flex w-full h-screen p-4 space-x-4 overflow-x-auto">
       {scheduleData.map(({ day, events }) => (
-        <div key={day} className="flex-1 border rounded shadow-lg">
+        <div key={day} className="flex-1 min-w-[200px] border rounded shadow-lg">
           <div className="text-center font-bold p-2 bg-gray-200">{day}</div>
           <div className="relative h-full p-2">
             {events.map((event, index) => {
               const duration = getBlockDuration(event.start_time, event.end_time);
-              const startMinutes = getBlockDuration('00:00', event.start_time);
+              const startMinutes = getBlockDuration('00:00', event.start_time) - earliestTime;
               
               return (
                 <div 
                   key={index} 
-                  className={`absolute w-full ${getBlockColor(event.event)} text-white p-2 rounded`}
+                  className={`absolute w-full ${getBlockColor(event.event)} text-black p-2 rounded mb-1`}
                   style={{
                     height: `${(duration / TOTAL_DAY_MINUTES) * 100}%`,
                     top: `${(startMinutes / TOTAL_DAY_MINUTES) * 100}%`
                   }}
                 >
-                  <div className="font-semibold">{event.event}</div>
-                  <div className="text-sm">{`${event.start_time} - ${event.end_time}`}</div>
+                  <div className="font-semibold text-sm">{event.event}</div>
+                  <div className="text-xs">{`${event.start_time} - ${event.end_time}`}</div>
                   <div className="text-xs">{event.location}</div>
                 </div>
               );
