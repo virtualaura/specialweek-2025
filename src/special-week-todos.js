@@ -36,7 +36,7 @@ export default function TodoList() {
         <button className="px-3 py-1 bg-gray-500 text-white rounded" onClick={() => setFilter("Julia")}>Julia</button>
       </div>
       <ul class="list-none">
-  {todos.map((todo) => (
+  {special-week-todos.map((todo) => (
     <li class="p-3 border-b last:border-b-0 flex flex-col">
       <div class="flex items-start">
         <input disabled class="mr-2 mt-1" type="checkbox" checked={todo.status === "done"} />
