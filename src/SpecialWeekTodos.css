@@ -76,3 +76,6 @@ ul {
     margin-right: 1rem;
   }
   
+  ul {
+    list-style-type: none;
+  }

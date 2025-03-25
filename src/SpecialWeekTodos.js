@@ -59,18 +59,14 @@ export default function TodoList() {
       <ul className="list-none space-y-4">
         {filteredTasks.map((todo) => (
           <li key={todo.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
               <input
                 disabled
                 className="mr-3 h-5 w-5 text-blue-500 border-gray-300 rounded"
                 type="checkbox"
                 checked={todo.status === "done"}
               />
-              <div
-                className={`font-semibold text-lg ${
-                  todo.status === "done" ? "line-through text-gray-400" : "text-gray-900"
-                }`}
-              >
+              <div className={`font-semibold text-lg ${todo.status === "done" ? "line-through text-gray-400" : "text-gray-900"}`}>
                 {todo.description}
               </div>
             </div>
