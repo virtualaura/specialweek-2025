@@ -10,6 +10,7 @@ const ScheduleDisplay = ({ csvData }) => {
             header: true,
             skipEmptyLines: true,
             complete: (result) => {
+                console.log("Parsed CSV Data:", result.data);
                 const formattedData = result.data.map(item => ({
                     day: item.day,
                     period: item.period,
@@ -17,7 +18,8 @@ const ScheduleDisplay = ({ csvData }) => {
                     endTime: item.end_time,
                     event: item.event,
                     location: item.location
-                }));
+                })).filter(item => item.day && item.period && item.startTime && item.endTime && item.event && item.location);
+                console.log("Formatted Schedule Data:", formattedData);
                 setSchedule(formattedData);
             }
         });
@@ -46,8 +48,8 @@ const ScheduleDisplay = ({ csvData }) => {
                                 boxSizing: 'border-box',
                                 textAlign: 'center',
                                 fontSize: '12px',
-                                top: `${(parseInt(entry.startTime.split(':')[0]) * 60 + parseInt(entry.startTime.split(':')[1])) / 10}%`,
-                                height: `${(parseInt(entry.endTime.split(':')[0]) * 60 + parseInt(entry.endTime.split(':')[1]) - (parseInt(entry.startTime.split(':')[0]) * 60 + parseInt(entry.startTime.split(':')[1])))}px`
+                                top: `${(parseInt(entry.startTime?.split(':')[0]) * 60 + parseInt(entry.startTime?.split(':')[1])) / 10}%`,
+                                height: `${(parseInt(entry.endTime?.split(':')[0]) * 60 + parseInt(entry.endTime?.split(':')[1]) - (parseInt(entry.startTime?.split(':')[0]) * 60 + parseInt(entry.startTime?.split(':')[1])))}px`
                             }}>
                                 <div className="font-semibold">{entry.event}</div>
                                 <div className="text-sm">{entry.period}</div>
