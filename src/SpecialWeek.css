@@ -143,3 +143,6 @@ ul {
     padding-bottom: 5px;
   }
   
+  ul {
+    padding-inline-start: 10px;
+  }
