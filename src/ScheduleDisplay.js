@@ -2,12 +2,18 @@ import React from "react";
 
 // Helper function to calculate block duration in hours
 const getBlockDuration = (start, end) => {
-  // Convert start and end times to Date objects
-  const startTime = new Date(`1970-01-01T${start}:00`);
-  const endTime = new Date(`1970-01-01T${end}:00`);
-  
-  // Calculate the duration in hours
-  return (endTime - startTime) / 3600000; // Convert milliseconds to hours
+  const [startHour, startMinute] = start.split(":").map(Number);
+  const [endHour, endMinute] = end.split(":").map(Number);
+
+  // Convert start and end times to minutes
+  const startTimeInMinutes = startHour * 60 + startMinute;
+  const endTimeInMinutes = endHour * 60 + endMinute;
+
+  // Calculate the duration in minutes
+  const durationInMinutes = endTimeInMinutes - startTimeInMinutes;
+
+  // Return the duration in hours (for block width)
+  return durationInMinutes / 60; // Convert minutes to hours
 };
 
   // Helper function to get block color based on the time of day
