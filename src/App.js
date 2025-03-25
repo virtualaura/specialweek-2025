@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
-import Papa from "papaparse";
 import ScheduleDisplay from "./ScheduleDisplay";  // Separate component for displaying
 import TodoList from "./SpecialWeekTodos.js";
 import './App.css';
