@@ -137,7 +137,10 @@ const SpecialWeekTodos = () => {
               </div>
               <div className="mt-2 ml-8 text-gray-700 text-sm space-y-1">
                 <div><span className="font-semibold text-gray-900">📅 Due Date:</span> {todo.due_date}</div>
-                <div><span className="font-semibold text-gray-900">👤 Who:</span> {todo.who ? todo.who.split(";").join(", ") : ""}</div>
+                <div>
+                 <span className="font-semibold text-gray-900">👤 Who:</span> 
+                  {todo.who ? String(todo.who).split(";").join(", ") : ""}
+                </div>
                 {todo.cc && <div><span className="font-semibold text-gray-900">📢 For Info:</span> {todo.cc}</div>}
                 {todo.notes && <div className="italic text-gray-600">📝 {todo.notes}</div>}
               </div>
