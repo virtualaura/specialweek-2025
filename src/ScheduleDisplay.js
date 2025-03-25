@@ -6,12 +6,6 @@ import './SpecialWeek.css';
 const ScheduleDisplay = () => {
   const [scheduleData, setScheduleData] = useState([]);
 
-  // Debug logging function
-  const logData = (data) => {
-    console.log('Parsed Schedule Data:', JSON.stringify(data, null, 2));
-    return data;
-  };
-
   useEffect(() => {
     // Directly create the data structure
     const rawData = [
@@ -40,56 +34,63 @@ const ScheduleDisplay = () => {
       return acc;
     }, {});
 
-    // Convert to array and log
+    // Convert to array 
     const processedSchedule = Object.entries(groupedSchedule)
-      .map(([day, events]) => ({ day, events }))
-      .map(logData);
+      .map(([day, events]) => ({ day, events }));
 
     setScheduleData(processedSchedule);
   }, []);
 
-  // Time to minutes conversion
-  const timeToMinutes = (time) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
-
-  // Color mapping
+  // Color mapping function
   const getBlockColor = (event) => {
     const colorMap = {
-      'Workshop': 'bg-blue-500',
-      'Lunch': 'bg-yellow-500',
-      'Gouter': 'bg-yellow-200',
-      'Team Meeting': 'bg-green-500',
-      'Keynote': 'bg-purple-500',
-      'Hackathon': 'bg-red-500',
-      'Pitch Event': 'bg-orange-500'
+      'Workshop': 'blue',
+      'Lunch': 'yellow',
+      'Gouter': 'lightyellow',
+      'Team Meeting': 'green',
+      'Keynote': 'blue',
+      'Hackathon': 'red',
+      'Pitch Event': 'red'
     };
-    return colorMap[event] || 'bg-gray-300';
+    return colorMap[event] || 'lightyellow';
+  };
+
+  // Convert time to percentage for positioning
+  const calculateHeight = (startTime, endTime) => {
+    const timeToMinutes = (time) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+
+    const start = timeToMinutes(startTime);
+    const end = timeToMinutes(endTime);
+    const totalDayMinutes = 24 * 60;
+    
+    return {
+      height: `${((end - start) / totalDayMinutes) * 100}%`,
+      top: `${(start / totalDayMinutes) * 100}%`
+    };
   };
 
   return (
-    <div className="flex w-full h-screen p-4 space-x-4 overflow-x-auto">
+    <div className="schedule-container">
       {scheduleData.map(({ day, events }) => (
-        <div key={day} className="flex-1 border rounded shadow-lg">
-          <div className="text-center font-bold p-2 bg-gray-200">{day}</div>
-          <div className="relative h-[600px]">
+        <div key={day} className="schedule-day">
+          <div className="schedule-day-name">{day}</div>
+          <div className="schedule-bars">
             {events.map((event, index) => {
-              const startMinutes = timeToMinutes(event.start_time);
-              const endMinutes = timeToMinutes(event.end_time);
-              const duration = endMinutes - startMinutes;
-
+              const positionStyle = calculateHeight(event.start_time, event.end_time);
               return (
                 <div 
-                  key={index}
-                  className={`absolute w-full ${getBlockColor(event.event)} text-white p-2`}
-                  style={{
-                    height: `${(duration / (24 * 60)) * 100}%`,
-                    top: `${(startMinutes / (24 * 60)) * 100}%`
-                  }}
+                  key={index} 
+                  className={`schedule-block ${getBlockColor(event.event)}`}
+                  style={positionStyle}
                 >
-                  <div className="text-sm">{event.event}</div>
-                  <div className="text-xs">{`${event.start_time} - ${event.end_time}`}</div>
+                  <div className="block-content">
+                    <div className="event-name">{event.event}</div>
+                    <div className="event-time">{`${event.start_time} - ${event.end_time}`}</div>
+                    <div className="event-location">{event.location}</div>
+                  </div>
                 </div>
               );
             })}
