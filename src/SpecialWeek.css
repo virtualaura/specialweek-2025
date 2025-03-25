@@ -8,39 +8,58 @@ h3 {
 
   .schedule-container {
     display: flex;
-    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    padding: 20px;
+    overflow-x: auto;
   }
   
   .schedule-day {
-    margin-bottom: 20px;
+    flex: 1;
+    min-width: 200px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-right: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
   
-.schedule-day-name {
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  
-  .schedule-bars {
-    display: flex;
-  }
-  
-.schedule-block {
+  .schedule-day-header {
+    background-color: #f0f0f0;
     text-align: center;
     padding: 10px;
-    color: white;
-    border-radius: 4px;
-    margin-right: 5px;
+    font-weight: bold;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
   }
-
-.event-text {
-  position: absolute;
-  z-index: 1;
-}
-
-.filter-buttons button {
-  margin-right: 10px;
-  margin-top: 5px;
-}
+  
+  .schedule-day-events {
+    position: relative;
+    height: 600px;
+    padding: 10px;
+  }
+  
+  .schedule-event {
+    position: absolute;
+    width: 100%;
+    color: black;
+    padding: 8px;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .event-name {
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  .event-time {
+    font-size: 0.8em;
+    margin-bottom: 2px;
+  }
+  
+  .event-location {
+    font-size: 0.7em;
+  }
 
 /* For the todo list */
 ul {
