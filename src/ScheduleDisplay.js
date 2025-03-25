@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from 'react'; // Add this import line at the top
 
 // Helper function to parse and calculate block duration
 const getBlockDuration = (start, end) => {
