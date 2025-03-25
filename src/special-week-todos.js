@@ -29,7 +29,37 @@ export default function TodoList() {
 
   return (
     <div className="p-4 max-w-lg mx-auto">
-      <h1 className="text-xl font-bold mb-4">To-Do List</h1>
+      <h1 className="text-xl font-bold mb-4">Special Week 2025 - Plan and To-Dos</h1>
+      <h3>Below please find details for Special Week 2025 planning. In the first block, you'll see the calendar for the week. The second section has the to-dos that need to be completed 
+        for the week. By clicking on your name, you'll see the infromation that is relevant for you - either because
+        your feedback is needed, or on a FYI basis. 
+      </h3>
+      <table class="w-full border-collapse">
+        <thead>
+            <tr class="bg-gray-200">
+            <th class="p-2 border">Time</th>
+            {schedule.map((day) => (
+                <th class="p-2 border">{day.date}</th>
+            ))}
+            </tr>
+        </thead>
+        <tbody>
+            {["Morning1", "Break", "Morning2", "Lunch", "Afternoon", "Evening", ].map((slot) => (
+            <tr>
+                <td class="p-2 border font-semibold">{slot}</td>
+                {schedule.map((day) => {
+                const block = day.blocks.find((b) => b.time === slot);
+                return (
+                    <td class="p-2 border">
+                    {block ? `${block.start} - ${block.end}: ${block.event} (${block.location})` : "—"}
+                    </td>
+                );
+                })}
+            </tr>
+            ))}
+        </tbody>
+      </table>
+      
       <div className="mb-4">
         <button className="mr-2 px-3 py-1 bg-blue-500 text-white rounded" onClick={() => setFilter(null)}>All</button>
         <button className="mr-2 px-3 py-1 bg-gray-500 text-white rounded" onClick={() => setFilter("Kim")}>Kim</button>
@@ -52,8 +82,8 @@ export default function TodoList() {
     <div class="mt-2 ml-8 text-gray-700 text-sm space-y-1">
       <div><span class="font-semibold text-gray-900">📅 Due Date:</span> {todo.due_date}</div>
       <div>
-        <span class="font-semibold text-gray-900">👤 Who:</span> {todo.who.split(";").join(", ")}
-      </div>
+        <span class="font-semibold text-gray-900">👤 Who:</span> {todo.who ? todo.who.split(";").join(", ") : ""}
+    </div>
       {todo.cc && <div><span class="font-semibold text-gray-900">📢 For Info:</span> {todo.cc}</div>}
       {todo.notes && <div class="italic text-gray-600">📝 {todo.notes}</div>}
     </div>
