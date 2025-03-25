@@ -57,7 +57,7 @@ ul {
   }
   
   li .text-lg {
-    font-size: 1.1em;
+    font-size: 1em;
   }
   
   li .text-gray-900 {
@@ -142,6 +142,7 @@ ul {
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 35px;
+    font-size: 1em;
   }
   
   ul {

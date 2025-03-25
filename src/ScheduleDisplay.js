@@ -1,66 +1,100 @@
-import React, { useState, useEffect } from 'react';
+// CLAUDE
+// import React, { useState, useEffect } from 'react';  
 import Papa from 'papaparse';
 
-const ScheduleDisplay = ({ csvData }) => {
-    const [schedule, setSchedule] = useState([]);
+const ScheduleDisplay = () => {
+  const [scheduleData, setScheduleData] = useState([]);
 
-    useEffect(() => {
-        if (!csvData) return;
-        Papa.parse(csvData, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (result) => {
-                console.log("Parsed CSV Data:", result.data);
-                const formattedData = result.data.map(item => ({
-                    day: item.day,
-                    period: item.period,
-                    startTime: item.start_time,
-                    endTime: item.end_time,
-                    event: item.event,
-                    location: item.location
-                })).filter(item => item.day && item.period && item.startTime && item.endTime && item.event && item.location);
-                console.log("Formatted Schedule Data:", formattedData);
-                setSchedule(formattedData);
-            }
+  // Helper function to parse and calculate block duration
+  const getBlockDuration = (start, end) => {
+    const parseTime = (time) => {
+      const [hours, minutes] = time.split(":").map(Number);
+      return hours * 60 + minutes; // convert time to total minutes
+    };
+    const startTimeInMinutes = parseTime(start);
+    const endTimeInMinutes = parseTime(end);
+    return endTimeInMinutes - startTimeInMinutes; // return duration in minutes
+  };
+
+  // Helper function to get block color based on the event type
+  const getBlockColor = (event) => {
+    const colorMap = {
+      'Workshop': 'bg-blue-500',
+      'Lunch': 'bg-yellow-500',
+      'Gouter': 'bg-yellow-100',
+      'Team Meeting': 'bg-green-500',
+      'Keynote': 'bg-purple-500',
+      'Hackathon': 'bg-red-500',
+      'Pitch Event': 'bg-orange-500',
+      'Evening': 'bg-indigo-500'
+    };
+    return colorMap[event] || 'bg-gray-300';
+  };
+
+  useEffect(() => {
+    // Fetch and parse the CSV file
+    fetch('/schedule.csv')
+      .then(response => response.text())
+      .then(csvText => {
+        // Parse CSV using Papaparse
+        Papa.parse(csvText, {
+          header: true,
+          complete: (results) => {
+            // Group results by day
+            const groupedSchedule = {};
+            results.data.forEach(row => {
+              if (!groupedSchedule[row.day]) {
+                groupedSchedule[row.day] = [];
+              }
+              groupedSchedule[row.day].push(row);
+            });
+
+            // Convert grouped schedule to array
+            const processedSchedule = Object.entries(groupedSchedule).map(([day, events]) => ({
+              day,
+              events
+            }));
+
+            setScheduleData(processedSchedule);
+          }
         });
-    }, [csvData]);
+      })
+      .catch(error => console.error('Error fetching schedule:', error));
+  }, []);
 
-    const groupedByDay = schedule.reduce((acc, entry) => {
-        if (!acc[entry.day]) acc[entry.day] = [];
-        acc[entry.day].push(entry);
-        return acc;
-    }, {});
+  // Calculate total minutes in a day for percentage height
+  const TOTAL_DAY_MINUTES = 24 * 60;
 
-    return (
-        <div style={{ display: 'flex', gap: '10px' }}>
-            {Object.keys(groupedByDay).map(day => (
-                <div key={day} style={{ flex: '1', minWidth: '150px', padding: '10px', border: '1px solid #ccc' }}>
-                    <h3 style={{ textAlign: 'center', marginBottom: '10px' }}>{day}</h3>
-                    <div style={{ position: 'relative', height: '200px', background: '#f9f9f9', padding: '5px' }}>
-                        {groupedByDay[day].map((entry, index) => (
-                            <div key={index} style={{
-                                position: 'absolute',
-                                width: '100%',
-                                padding: '5px',
-                                backgroundColor: '#bdc3c7',
-                                borderRadius: '5px',
-                                color: 'white',
-                                boxSizing: 'border-box',
-                                textAlign: 'center',
-                                fontSize: '12px',
-                                top: `${(parseInt(entry.startTime?.split(':')[0]) * 60 + parseInt(entry.startTime?.split(':')[1])) / 10}%`,
-                                height: `${(parseInt(entry.endTime?.split(':')[0]) * 60 + parseInt(entry.endTime?.split(':')[1]) - (parseInt(entry.startTime?.split(':')[0]) * 60 + parseInt(entry.startTime?.split(':')[1])))}px`
-                            }}>
-                                <div className="font-semibold">{entry.event}</div>
-                                <div className="text-sm">{entry.period}</div>
-                                <div className="text-xs">{entry.location}</div>
-                            </div>
-                        ))}
-                    </div>
+  return (
+    <div className="flex w-full h-screen p-4 space-x-4">
+      {scheduleData.map(({ day, events }) => (
+        <div key={day} className="flex-1 border rounded shadow-lg">
+          <div className="text-center font-bold p-2 bg-gray-200">{day}</div>
+          <div className="relative h-full p-2">
+            {events.map((event, index) => {
+              const duration = getBlockDuration(event.start_time, event.end_time);
+              const startMinutes = getBlockDuration('00:00', event.start_time);
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`absolute w-full ${getBlockColor(event.event)} text-white p-2 rounded`}
+                  style={{
+                    height: `${(duration / TOTAL_DAY_MINUTES) * 100}%`,
+                    top: `${(startMinutes / TOTAL_DAY_MINUTES) * 100}%`
+                  }}
+                >
+                  <div className="font-semibold">{event.event}</div>
+                  <div className="text-sm">{`${event.start_time} - ${event.end_time}`}</div>
+                  <div className="text-xs">{event.location}</div>
                 </div>
-            ))}
+              );
+            })}
+          </div>
         </div>
-    );
+      ))}
+    </div>
+  );
 };
 
 export default ScheduleDisplay;
