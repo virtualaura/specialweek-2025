@@ -79,3 +79,62 @@ ul {
   ul, ul.list-none {
     list-style-type: none !important;
   }
+
+  /* Add custom styles for day and event block */
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .days-of-week {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .day-column {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+  }
+  
+  .schedule-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .schedule-block {
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+  }
+  
+  .schedule-block.bg-blue-500 {
+    background-color: #3b82f6;
+  }
+  
+  .schedule-block.bg-green-500 {
+    background-color: #10b981;
+  }
+  
+  .schedule-block.bg-yellow-500 {
+    background-color: #facc15;
+  }
+  
+  .schedule-block.bg-yellow-100 {
+    background-color: #fef9c3;
+  }
+  
+  .schedule-block.bg-red-500 {
+    background-color: #ef4444;
+  }
+  
+  .schedule-day-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  

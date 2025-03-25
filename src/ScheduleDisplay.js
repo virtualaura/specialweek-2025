@@ -26,18 +26,20 @@ const getBlockColor = (time) => {
 const CalendarDisplay = ({ schedule }) => {
   return (
     <div className="calendar-container">
-      <div className="days-of-week">
+      <div className="days-of-week flex justify-between mb-4">
         <div className="day">Tuesday</div>
         <div className="day">Wednesday</div>
         <div className="day">Thursday</div>
         <div className="day">Friday</div>
       </div>
-      <div className="schedule">
+      <div className="schedule grid grid-cols-4 gap-4">
         {schedule && schedule.length > 0 ? (
           schedule.map((day) => (
-            <div key={day.date} className="day-column">
-              <div className="schedule-day-name">{day.date}</div>
-              <div className="schedule-bars">
+            <div key={day.date} className="day-column p-4 border rounded-lg">
+              <div className="schedule-day-name text-xl font-semibold text-center mb-2">
+                {day.date}
+              </div>
+              <div className="schedule-bars flex flex-col space-y-2">
                 {day.blocks && day.blocks.length > 0 ? (
                   day.blocks.map((block, index) => {
                     // Ensure block.start and block.end are defined before processing
