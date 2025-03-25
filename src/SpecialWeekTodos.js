@@ -110,9 +110,9 @@ export default function SpecialWeekTodos() {
                 type="checkbox"
                 checked={todo.status === "done"}
               />
-              <div className={`font-semibold text-lg ${todo.status === "done" ? "line-through text-gray-400" : "text-gray-900"}`}>
+              <span className={`font-semibold text-lg ${todo.status === "done" ? "line-through text-gray-400" : "text-gray-900"}`}>
                 {todo.description}
-              </div>
+              </span>
             </div>
             <div className="mt-2 ml-8 text-gray-700 text-sm space-y-1">
               {/* Date, Who, Notes */}
