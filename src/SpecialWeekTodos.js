@@ -94,7 +94,7 @@ export default function SpecialWeekTodos() {
         Below please find details for Special Week 2025 planning. First, you'll see the calendar for
         the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
         <br/><br/>
-        The second block has the to-dos that need to be completed for the week. By clicking on the button below the calendar that shows your name,
+        The second block has the to-dos that need to be completed for the week, and that is where I need your help 😊. By clicking on the button below the calendar that shows your name,
         you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
         basis (📢).
       </h4>

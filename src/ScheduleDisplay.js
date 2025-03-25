@@ -9,18 +9,20 @@ const ScheduleDisplay = () => {
   useEffect(() => {
     // Directly create the data structure
     const rawData = [
-      { day: 'Tuesday', start_time: '08:40', end_time: '10:10', event: 'Workshop', location: 'on-site' },
+      { day: 'Tuesday', start_time: '08:40', end_time: '10:10', event: 'Introduction and Planning', location: 'on-site' },
       { day: 'Tuesday', start_time: '10:10', end_time: '10:30', event: 'Gouter', location: 'on-site' },
-      { day: 'Tuesday', start_time: '10:30', end_time: '12:30', event: 'Workshop', location: 'on-site' },
+      { day: 'Tuesday', start_time: '10:30', end_time: '12:30', event: 'Team Work', location: 'on-site' },
       { day: 'Tuesday', start_time: '12:30', end_time: '13:30', event: 'Lunch', location: 'on-site' },
-      { day: 'Tuesday', start_time: '13:30', end_time: '17:00', event: 'Team Meeting', location: 'on-site' },
-      { day: 'Wednesday', start_time: '08:40', end_time: '10:10', event: 'Workshop', location: 'on-site' },
-      { day: 'Wednesday', start_time: '10:10', end_time: '10:30', event: 'Gouter', location: 'on-site' },
-      { day: 'Wednesday', start_time: '10:30', end_time: '12:00', event: 'Keynote', location: 'on-site' },
-      { day: 'Thursday', start_time: '08:40', end_time: '10:10', event: 'Workshop', location: 'on-site' },
+      { day: 'Tuesday', start_time: '13:30', end_time: '15:30', event: 'Team Work', location: 'on-site' },
+      { day: 'Wednesday', start_time: '08:40', end_time: '13:30', event: 'Interviews & Box Lunch', location: 'off-site' },
+      { day: 'Wednesday', start_time: '13:30', end_time: '15:30', event: 'Team Work', location: 'on-site' },
+      { day: 'Thursday', start_time: '08:40', end_time: '10:10', event: 'Team Work', location: 'on-site' },
       { day: 'Thursday', start_time: '10:10', end_time: '10:30', event: 'Gouter', location: 'on-site' },
+      { day: 'Thursday', start_time: '10:30', end_time: '12:30', event: 'Team Work', location: 'on-site' },
+      { day: 'Thursday', start_time: '12:30', end_time: '13:30', event: 'Lunch', location: 'on-site' },
+      { day: 'Thursday', start_time: '13:30', end_time: '15:30', event: 'Team Work', location: 'on-site' },
       { day: 'Thursday', start_time: '17:00', end_time: '22:00', event: 'Hackathon', location: 'on-site' },
-      { day: 'Friday', start_time: '08:40', end_time: '10:10', event: 'Workshop', location: 'on-site' },
+      { day: 'Friday', start_time: '08:40', end_time: '10:10', event: 'Team Work', location: 'on-site' },
       { day: 'Friday', start_time: '10:10', end_time: '10:30', event: 'Gouter', location: 'on-site' },
       { day: 'Friday', start_time: '14:00', end_time: '17:00', event: 'Pitch Event', location: 'on-site' }
     ];
@@ -44,10 +46,10 @@ const ScheduleDisplay = () => {
   // Color mapping function
   const getBlockColor = (event) => {
     const colorMap = {
-      'Workshop': 'blue',
+      'Team Work': 'blue',
       'Lunch': 'yellow',
       'Gouter': 'lightyellow',
-      'Team Meeting': 'green',
+      'Interviews & Box Lunch': 'green',
       'Keynote': 'blue',
       'Hackathon': 'red',
       'Pitch Event': 'red'
