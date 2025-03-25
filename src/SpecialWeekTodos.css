@@ -1,0 +1,39 @@
+.schedule-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.schedule-day {
+  flex: 1;
+  margin: 0 1rem;
+}
+
+.schedule-bars {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.schedule-block {
+  position: relative;
+  margin-bottom: 0.5rem;
+  height: 30px; /* Adjust the height based on your needs */
+  color: white;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 4px;
+}
+
+.event-text {
+  position: absolute;
+  z-index: 1;
+}
+
+.filter-buttons button {
+  margin-right: 10px;
+  margin-top: 5px;
+}
