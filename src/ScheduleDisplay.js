@@ -7,13 +7,34 @@ const ScheduleDisplay = () => {
 
   // Helper function to parse and calculate block duration
   const getBlockDuration = (start, end) => {
+    // Add null/undefined checks
+    if (!start || !end) {
+      console.warn(`Invalid time input: start=${start}, end=${end}`);
+      return 0;
+    }
+
     const parseTime = (time) => {
-      const [hours, minutes] = time.split(":").map(Number);
+      // Trim whitespace and handle potential formatting issues
+      const trimmedTime = time.trim();
+      
+      // Validate time format
+      if (!/^\d{2}:\d{2}$/.test(trimmedTime)) {
+        console.warn(`Invalid time format: ${trimmedTime}`);
+        return 0;
+      }
+
+      const [hours, minutes] = trimmedTime.split(":").map(Number);
       return hours * 60 + minutes; // convert time to total minutes
     };
-    const startTimeInMinutes = parseTime(start);
-    const endTimeInMinutes = parseTime(end);
-    return endTimeInMinutes - startTimeInMinutes; // return duration in minutes
+
+    try {
+      const startTimeInMinutes = parseTime(start);
+      const endTimeInMinutes = parseTime(end);
+      return endTimeInMinutes - startTimeInMinutes; // return duration in minutes
+    } catch (err) {
+      console.error('Error parsing time:', err);
+      return 0;
+    }
   };
 
   // Helper function to get block color based on the event type
@@ -33,7 +54,7 @@ const ScheduleDisplay = () => {
 
   useEffect(() => {
     // Fetch and parse the CSV file
-    fetch('/schedule.csv')
+    fetch('../schedule.csv')
       .then(response => response.text())
       .then(csvText => {
         // Parse CSV using Papaparse
