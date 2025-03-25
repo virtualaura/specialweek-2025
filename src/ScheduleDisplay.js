@@ -1,82 +1,64 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
+import Papa from 'papaparse';
 
-// Convert "HH:mm" to minutes since midnight
-const timeToMinutes = (time) => {
-  const [hours, minutes] = time.split(":").map(Number);
-  return hours * 60 + minutes;
-};
+const ScheduleDisplay = ({ csvData }) => {
+    const [schedule, setSchedule] = useState([]);
 
-// Calculate event height (scaled down further)
-const calculateHeight = (start, end) => {
-  const duration = timeToMinutes(end) - timeToMinutes(start);
-  return (duration / 60) * 12; // Adjusted scale factor
-};
+    useEffect(() => {
+        if (!csvData) return;
+        Papa.parse(csvData, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (result) => {
+                const formattedData = result.data.map(item => ({
+                    day: item.day,
+                    period: item.period,
+                    startTime: item.start_time,
+                    endTime: item.end_time,
+                    event: item.event,
+                    location: item.location
+                }));
+                setSchedule(formattedData);
+            }
+        });
+    }, [csvData]);
 
-// Position events properly within the column
-const calculateTop = (start) => {
-  return (timeToMinutes(start) / 1440) * 400; // Assuming 400px total height
-};
+    const groupedByDay = schedule.reduce((acc, entry) => {
+        if (!acc[entry.day]) acc[entry.day] = [];
+        acc[entry.day].push(entry);
+        return acc;
+    }, {});
 
-// Group events by date
-const groupByDate = (schedule) => {
-  return schedule.reduce((acc, block) => {
-    if (!acc[block.date]) acc[block.date] = [];
-    acc[block.date].push(block);
-    return acc;
-  }, {});
-};
-
-const ScheduleDisplay = ({ schedule }) => {
-  const groupedSchedule = groupByDate(schedule);
-  const dates = Object.keys(groupedSchedule);
-
-  return (
-    <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-      {dates.map((day) => (
-        <div key={day} style={{ flex: 1, minWidth: "150px", padding: "10px", border: "1px solid #ccc" }}>
-          <h3 style={{ textAlign: "center", marginBottom: "10px" }}>{day}</h3>
-          <div style={{ position: "relative", height: "400px", background: "#f9f9f9", padding: "5px" }}>
-            {groupedSchedule[day].map((block, index) => (
-              <div
-                key={index}
-                style={{
-                  position: "absolute",
-                  top: calculateTop(block.start) + "px",
-                  height: calculateHeight(block.start, block.end) + "px",
-                  width: "100%",
-                  padding: "5px",
-                  backgroundColor: getBlockColor(block.event),
-                  borderRadius: "5px",
-                  color: "white",
-                  boxSizing: "border-box",
-                  textAlign: "center",
-                  fontSize: "12px",
-                }}
-              >
-                <div className="font-semibold">{block.event}</div>
-                <div className="text-sm">{block.time}</div>
-                <div className="text-xs">{block.location}</div>
-              </div>
+    return (
+        <div style={{ display: 'flex', gap: '10px' }}>
+            {Object.keys(groupedByDay).map(day => (
+                <div key={day} style={{ flex: '1', minWidth: '150px', padding: '10px', border: '1px solid #ccc' }}>
+                    <h3 style={{ textAlign: 'center', marginBottom: '10px' }}>{day}</h3>
+                    <div style={{ position: 'relative', height: '200px', background: '#f9f9f9', padding: '5px' }}>
+                        {groupedByDay[day].map((entry, index) => (
+                            <div key={index} style={{
+                                position: 'absolute',
+                                width: '100%',
+                                padding: '5px',
+                                backgroundColor: '#bdc3c7',
+                                borderRadius: '5px',
+                                color: 'white',
+                                boxSizing: 'border-box',
+                                textAlign: 'center',
+                                fontSize: '12px',
+                                top: `${(parseInt(entry.startTime.split(':')[0]) * 60 + parseInt(entry.startTime.split(':')[1])) / 10}%`,
+                                height: `${(parseInt(entry.endTime.split(':')[0]) * 60 + parseInt(entry.endTime.split(':')[1]) - (parseInt(entry.startTime.split(':')[0]) * 60 + parseInt(entry.startTime.split(':')[1])))}px`
+                            }}>
+                                <div className="font-semibold">{entry.event}</div>
+                                <div className="text-sm">{entry.period}</div>
+                                <div className="text-xs">{entry.location}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             ))}
-          </div>
         </div>
-      ))}
-    </div>
-  );
-};
-
-// Assign colors to event types
-const getBlockColor = (event) => {
-  const colors = {
-    Workshop: "#3498db",
-    Gouter: "#f1c40f",
-    Lunch: "#e67e22",
-    "Team Meeting": "#2ecc71",
-    Keynote: "#9b59b6",
-    Hackathon: "#e74c3c",
-    "Pitch Event": "#16a085",
-  };
-  return colors[event] || "#bdc3c7";
+    );
 };
 
 export default ScheduleDisplay;

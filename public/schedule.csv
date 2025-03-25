@@ -1,9 +1,11 @@
-date,time,start,end,event,location
+day,period,start_time,end_time,event,location
 Tuesday, Morning1, 08:40, 10:10, Workshop, on-site
 Tuesday, Gouter, 10:10, 10:30, Gouter, on-site
 Tuesday, Morning2, 10:30, 12:30, Workshop, on-site
 Tuesday, Lunch, 12:30, 13:30, Lunch, on-site
 Tuesday, Afternoon, 13:30, 17:00, Team Meeting, on-site
 Wednesday, Morning2, 10:30, 12:00, Keynote, on-site
+Thursday, Gouter, 10:10, 10:30, Gouter, on-site
 Thursday, Evening, 17:00, 22:00, Hackathon, on-site
+Friday, Gouter, 10:10, 10:30, Gouter, on-site
 Friday, Afternoon, 14:00, 17:00, Pitch Event, on-site
