@@ -35,18 +35,23 @@ export default function TodoList() {
         <button className="mr-2 px-3 py-1 bg-gray-500 text-white rounded" onClick={() => setFilter("Kim")}>Kim</button>
         <button className="px-3 py-1 bg-gray-500 text-white rounded" onClick={() => setFilter("Julia")}>Julia</button>
       </div>
-      <ul className="border p-4 rounded bg-gray-100">
-        {filteredTasks.map((task, index) => (
-          <li key={index} className="p-2 border-b last:border-b-0 flex items-center">
-            <input type="checkbox" checked={task.status === "done"} disabled className="mr-2" />
-            <div>
-              <div className="font-semibold">{task.description} (Due: {task.due_date})</div>
-              <div className="text-sm text-gray-600">Assigned: {task.who.join(", ")}</div>
-              <div className="text-xs italic">{task.notes}</div>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <ul class="list-none">
+  {todos.map((todo) => (
+    <li class="p-3 border-b last:border-b-0 flex flex-col">
+      <div class="flex items-start">
+        <input disabled class="mr-2 mt-1" type="checkbox" checked={todo.status === "done"} />
+        <div class="font-semibold">{todo.description}</div>
+      </div>
+      <div class="ml-6">
+        <div><span class="font-semibold">What:</span> {todo.description}</div>
+        <div><span class="font-semibold">Due Date:</span> {todo.due_date}</div>
+        <div><span class="font-semibold">Who:</span> {todo.who}</div>
+        <div><span class="font-semibold">For Info:</span> {todo.cc}</div>
+        <div><span class="font-semibold">Notes:</span> {todo.notes}</div>
+      </div>
+    </li>
+  ))}
+</ul>
     </div>
   );
 }
