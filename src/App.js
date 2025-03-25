@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Papa from "papaparse";
 import Papa from "papaparse";
 import ScheduleDisplay from "./ScheduleDisplay";  // Separate component for displaying
-import TodoList from "./special-week-todos.js";
+import TodoList from "./SpecialWeekTodos.js";
 import './App.css';
 
 const App = () => {
   const [schedule, setSchedule] = useState([]);
-
+  
+  // Fetch and parse schedule from CSV
   useEffect(() => {
     async function fetchSchedule() {
       const response = await fetch(process.env.PUBLIC_URL + "/schedule.csv");
@@ -32,7 +34,7 @@ const App = () => {
             return acc;
           }, []);
           
-          setSchedule(formattedSchedule);
+          setSchedule(formattedSchedule);  // Set the formatted schedule state
         }
       });
     }
@@ -43,15 +45,16 @@ const App = () => {
   return (
     <div>
       <h1>Welcome to the Event Schedule</h1>
-      
-      {/* Other components can go here */}
 
-      {/* Display schedule in a specific block */}
-      <div id="schedule-block">
+      {/* Schedule Display Block */}
+      <div id="schedule-block" className="my-6">
         <ScheduleDisplay schedule={schedule} />
       </div>
 
-      {/* You can add other sections or blocks of the page below */}
+      {/* Todo List Block */}
+      <div className="my-6">
+        <TodoList /> {/* Displaying the TodoList component */}
+      </div>
     </div>
   );
 };
