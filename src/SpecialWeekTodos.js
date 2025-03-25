@@ -143,11 +143,11 @@ export default function SpecialWeekTodos() {
               </div>
               <div className="todo-detail">
                 <span className="font-semibold text-gray-900">👤</span> 
-                {todo.who ? todo.who.join(" ") : ""} {/* Add space between names */}
+                {todo.who ? todo.who.join(", ") : ""} {/* Add space between names */}
               </div>
               {todo.cc && (
                 <div className="todo-detail">
-                  <span className="font-semibold text-gray-900">📢 </span> {todo.cc ? todo.cc.split(";").join(" ") : ""}
+                  <span className="font-semibold text-gray-900">📢 </span> {todo.cc ? todo.cc.split(";").join(", ") : ""}
                 </div>
               )}
               {todo.notes && <div className="todo-detail italic text-gray-600">📝 {todo.notes}</div>}
