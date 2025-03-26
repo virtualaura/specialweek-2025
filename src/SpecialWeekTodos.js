@@ -82,14 +82,14 @@ export default function SpecialWeekTodos() {
 
   // Filter tasks based on the selected filter and special conditions
   const filteredTasks = tasks.filter((task) => {
-    // Special case for TBD and done status tasks - only show for Laura
-    if ((task.description.includes('TBD') || task.status === 'done') && filter !== 'Laura') {
+    // Special case for done status tasks - only show for Laura
+    if (task.status === 'done' && filter !== 'Laura') {
       return false;
     }
 
-    // If no filter is selected, show all tasks except TBD and done status
+    // If no filter is selected, show all tasks except done status
     if (!filter) {
-      return !task.description.includes('TBD') && task.status !== 'done';
+      return task.status !== 'done';
     }
 
     // Check if the task is assigned to or CC'd to the selected person
@@ -109,16 +109,16 @@ export default function SpecialWeekTodos() {
         <h1>Special Week 2025 - Schedule and To-Dos</h1>
       </div>
       <h4>
-        Welcome everyone! If you {" "}
+        If you {" "}
         <span 
           className="calendar-link"
           onClick={() => setShowSchedule(!showSchedule)}
         >
           click here
         </span>{" "}
-        you will see the calendar for the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
+        you will see the schedule for the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
         <br/><br/>
-        Below the calendar are the to-dos that need to be completed for the week, and that is where I need your help 😊. By clicking on the button below the calendar that shows your name,
+        Below the schedule are the to-dos that need to be completed for the week, and that is where I need your help 😊. By clicking on the button that shows your name,
         you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
         basis (📢).
       </h4>

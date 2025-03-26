@@ -181,7 +181,7 @@ ul {
   /* Container for the entire schedule */
   .schedule-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     padding: 10px;
     height: auto;
@@ -346,6 +346,9 @@ ul {
   }
 
   @media (max-width: 768px) {
+    .schedule-container {
+      grid-template-columns: 1fr;
+    }
     .todo-grid {
       grid-template-columns: 1fr;
     }
