@@ -59,8 +59,8 @@ const ScheduleDisplay = () => {
       'Gouter': 'yellow',
       'Interviews & Box Lunch': 'green',
       'Keynote': 'blue',
-      'Hackathon': 'pink',
-      'Pitch Event': 'red'
+      'Hackathon': 'red',
+      'Pitch Event': 'pitch-event'
     };
     return colorMap[event] || 'lightyellow';
   };
