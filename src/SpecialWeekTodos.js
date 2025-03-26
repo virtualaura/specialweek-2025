@@ -134,8 +134,13 @@ export default function SpecialWeekTodos() {
         </button>
       </div>
       {showSchedule && (
-        <div id="schedule-block" className="my-6">
-          <ScheduleDisplay schedule={schedule} />
+        <div className="modal-overlay" onClick={() => setShowSchedule(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowSchedule(false)}>×</button>
+            <div id="schedule-block" className="my-6">
+              <ScheduleDisplay schedule={schedule} />
+            </div>
+          </div>
         </div>
       )}
 
