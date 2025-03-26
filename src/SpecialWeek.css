@@ -455,29 +455,50 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #2b6cb0;
+  color: #1f2937;
   font-size: 1.5rem;
 }
 
-.download-pdf-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: 1px solid #2b6cb0;
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.close-window-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  background-color: #2b6cb0;
-  color: white;
+  font-size: 0.875rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.close-window-btn:hover {
+  background-color: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.download-pdf-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  transition: all 0.2s;
 }
 
 .download-pdf-btn:hover {
-  background-color: #2c5282;
-  color: white;
+  background-color: #e5e7eb;
+  border-color: #d1d5db;
 }
