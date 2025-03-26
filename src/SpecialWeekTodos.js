@@ -7,13 +7,13 @@ const getUniqueNames = (tasks) => {
   const names = new Set();
   tasks.forEach((task) => {
     if (task.who) {
-      task.who.forEach((name) => names.add(name.trim())); // Add each unique 'who' name
+      task.who.forEach((name) => names.add(name.trim()));
     }
     if (task.cc) {
-      task.cc.split(";").forEach((name) => names.add(name.trim())); // Add each unique 'cc' name
+      task.cc.split(";").forEach((name) => names.add(name.trim()));
     }
   });
-  return [...names];
+  return [...names].sort(); // Sort names alphabetically
 };
 
 export default function SpecialWeekTodos() {
@@ -21,6 +21,7 @@ export default function SpecialWeekTodos() {
   const [schedule, setSchedule] = useState([]);
   const [filter, setFilter] = useState(null);
   const [names, setNames] = useState([]);
+  const [showSchedule, setShowSchedule] = useState(true);
 
   useEffect(() => {
     // Fetch and parse tasks CSV
@@ -35,10 +36,10 @@ export default function SpecialWeekTodos() {
           const formattedTasks = result.data.map((task) => ({
             ...task,
             who: task.who.split(";"),
-            due_date: formatDate(task.due_date),  // Format the date
+            due_date: formatDate(task.due_date),
           }));
-          setTasks(formattedTasks.sort((a, b) => new Date(a.due_date) - new Date(b.due_date))); // Sort tasks by date
-          setNames(getUniqueNames(formattedTasks)); // Extract unique names for the filter buttons
+          setTasks(formattedTasks.sort((a, b) => new Date(a.due_date) - new Date(b.due_date)));
+          setNames(getUniqueNames(formattedTasks));
         },
       });
     }
@@ -54,21 +55,16 @@ export default function SpecialWeekTodos() {
         complete: (result) => {
           const formattedSchedule = result.data.reduce((acc, row) => {
             const { date, time, start, end, event, location } = row;
-
-            // Format date and time
             const formattedDate = formatDate(date);
             let day = acc.find((day) => day.date === formattedDate);
             if (!day) {
               day = { date: formattedDate, blocks: [] };
               acc.push(day);
             }
-
             day.blocks.push({ time, start, end, event, location });
-
             return acc;
           }, []);
-          
-          setSchedule(formattedSchedule);  // Set the schedule state here
+          setSchedule(formattedSchedule);
         },
       });
     }
@@ -81,11 +77,26 @@ export default function SpecialWeekTodos() {
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('en-GB', options); // Format as "30 April 2025"
+    return date.toLocaleDateString('en-GB', options);
   };
 
-  // Filter tasks based on the selected filter
-  const filteredTasks = filter ? tasks.filter((task) => task.who.includes(filter)) : tasks;
+  // Filter tasks based on the selected filter and special conditions
+  const filteredTasks = tasks.filter((task) => {
+    // Special case for TBD and done status tasks - only show for Laura
+    if ((task.description.includes('TBD') || task.status === 'done') && filter !== 'Laura') {
+      return false;
+    }
+
+    // If no filter is selected, show all tasks except TBD and done status
+    if (!filter) {
+      return !task.description.includes('TBD') && task.status !== 'done';
+    }
+
+    // Check if the task is assigned to or CC'd to the selected person
+    const isAssigned = task.who.includes(filter);
+    const isCCd = task.cc && task.cc.split(';').includes(filter);
+    return isAssigned || isCCd;
+  });
 
   return (
     <div className="p-4 max-w-lg mx-auto">
@@ -99,20 +110,31 @@ export default function SpecialWeekTodos() {
         basis (📢).
       </h4>
 
+      {/* Toggle button for schedule */}
+      <button 
+        className="toggle-schedule-btn"
+        onClick={() => setShowSchedule(!showSchedule)}
+      >
+        {showSchedule ? 'Hide Schedule' : 'Show Schedule'}
+      </button>
+
       {/* Schedule block */}
-      <div id="schedule-block" className="my-6">
-        <ScheduleDisplay schedule={schedule} /> {/* Pass the schedule to ScheduleDisplay */}
+      <div id="schedule-block" className="my-6" style={{ display: showSchedule ? 'block' : 'none' }}>
+        <ScheduleDisplay schedule={schedule} />
       </div>
 
       {/* Dynamic Filter buttons */}
       <div className="mb-4">
-        <button className="mr-2 px-3 py-1 bg-blue-500 text-white rounded" onClick={() => setFilter(null)}>
+        <button 
+          className={`filter-button ${!filter ? 'active' : ''}`}
+          onClick={() => setFilter(null)}
+        >
           All
         </button>
         {names.map((name) => (
           <button
             key={name}
-            className="mr-2 px-3 py-1 bg-gray-500 text-white rounded"
+            className={`filter-button ${filter === name ? 'active' : ''}`}
             onClick={() => setFilter(name)}
           >
             {name}
@@ -125,7 +147,6 @@ export default function SpecialWeekTodos() {
         {filteredTasks.map((todo) => (
           <li key={todo.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
             <div className="flex items-center">
-              {/* Checkbox and Description on the same line */}
               <input
                 disabled
                 className="mr-3 h-5 w-5 text-blue-500 border-gray-300 rounded"
@@ -137,13 +158,12 @@ export default function SpecialWeekTodos() {
               </span>
             </div>
             <div className="mt-2 ml-8 text-gray-700 text-sm space-y-1">
-              {/* Date, Who, Notes */}
               <div className="todo-detail">
                 <span className="font-semibold text-gray-900">📅</span> {todo.due_date}
               </div>
               <div className="todo-detail">
                 <span className="font-semibold text-gray-900">👤</span> 
-                {todo.who ? todo.who.join(", ") : ""} {/* Add space between names */}
+                {todo.who ? todo.who.join(", ") : ""}
               </div>
               {todo.cc && (
                 <div className="todo-detail">

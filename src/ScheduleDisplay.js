@@ -48,10 +48,10 @@ const ScheduleDisplay = () => {
     const colorMap = {
       'Team Work': 'blue',
       'Lunch': 'yellow',
-      'Gouter': 'lightyellow',
+      'Gouter': 'yellow',
       'Interviews & Box Lunch': 'green',
       'Keynote': 'blue',
-      'Hackathon': 'red',
+      'Hackathon': 'pink',
       'Pitch Event': 'red'
     };
     return colorMap[event] || 'lightyellow';
