@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 import ScheduleDisplay from "./ScheduleDisplay";
+import { toPDF } from 'react-to-pdf';
 
 // Helper function to extract unique names from the 'who' and 'cc' fields
 const getUniqueNames = (tasks) => {
@@ -22,6 +23,22 @@ export default function SpecialWeekTodos() {
   const [filter, setFilter] = useState(null);
   const [names, setNames] = useState([]);
   const [showSchedule, setShowSchedule] = useState(false);
+  const scheduleRef = useRef(null);
+
+  const generatePDF = async (e) => {
+    e.preventDefault();
+    try {
+      await toPDF(scheduleRef, {
+        filename: 'special-week-schedule.pdf',
+        page: {
+          format: 'a4',
+          orientation: 'landscape'
+        }
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
 
   useEffect(() => {
     // Fetch and parse tasks CSV
@@ -121,14 +138,23 @@ export default function SpecialWeekTodos() {
       </div>
       <div>
       <h4 id="schedule">
-        Clicking the "Show Schedule" button will open up the daily schedule, starting on Tuesday the 13th of May and finishing Friday the 16th of May in the afternoon. 
-        </h4>
+        Clicking the "Show Schedule" button will open up the daily schedule, starting on Tuesday the 13th of May and finishing Friday the 16th of May in the afternoon. If you want a pdf version of the schedule, <a href="#" onClick={generatePDF} className="calendar-link">click here</a>.
+      </h4>
       </div>
       {showSchedule && (
         <div className="modal-overlay" onClick={() => setShowSchedule(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowSchedule(false)}>×</button>
-            <div id="schedule-block" className="my-6">
+            <div className="modal-header">
+              <h2>Special Week Schedule</h2>
+              <button 
+                className="download-pdf-btn"
+                onClick={generatePDF}
+              >
+                Download PDF
+              </button>
+            </div>
+            <div id="schedule-block" className="my-6" ref={scheduleRef}>
               <ScheduleDisplay schedule={schedule} />
             </div>
           </div>
