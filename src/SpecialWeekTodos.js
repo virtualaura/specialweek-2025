@@ -99,24 +99,22 @@ export default function SpecialWeekTodos() {
   });
 
   return (
-    <div className="p-4 max-w-lg mx-auto">
+    <div className="p-4 max-w-7xl mx-auto">
       <h1 className="text-xl font-bold mb-4">Special Week 2025 - Schedule and To-Dos</h1>
       <h4>
-        Below please find details for Special Week 2025 planning. First, you'll see the calendar for
-        the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
+        Below please find details for Special Week 2025 planning.{" "}
+        <button 
+          className="text-blue-600 hover:text-blue-800 underline"
+          onClick={() => setShowSchedule(!showSchedule)}
+        >
+          {showSchedule ? "Hide calendar" : "Show calendar"}
+        </button>{" "}
+        for the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
         <br/><br/>
         The second block has the to-dos that need to be completed for the week, and that is where I need your help 😊. By clicking on the button below the calendar that shows your name,
         you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
         basis (📢).
       </h4>
-
-      {/* Toggle button for schedule */}
-      <button 
-        className="toggle-schedule-btn"
-        onClick={() => setShowSchedule(!showSchedule)}
-      >
-        {showSchedule ? 'Hide Schedule' : 'Show Schedule'}
-      </button>
 
       {/* Schedule block */}
       <div id="schedule-block" className="my-6" style={{ display: showSchedule ? 'block' : 'none' }}>
@@ -142,8 +140,8 @@ export default function SpecialWeekTodos() {
         ))}
       </div>
 
-      {/* Todo list */}
-      <ul className="list-none space-y-4">
+      {/* Todo list in grid layout */}
+      <div className="todo-grid">
         {filteredTasks.map((todo) => (
           <li key={todo.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
             <div className="flex items-center">
@@ -174,7 +172,7 @@ export default function SpecialWeekTodos() {
             </div>
           </li>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

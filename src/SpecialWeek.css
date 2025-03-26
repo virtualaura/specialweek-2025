@@ -125,23 +125,23 @@ ul {
   }
   
   .schedule-block.bg-blue-500 {
-    background-color: rgba(59, 130, 246, 0.8);
+    background-color: rgba(59, 130, 246, 0.4);
   }
   
   .schedule-block.bg-green-500 {
-    background-color: rgba(16, 185, 129, 0.8);
+    background-color: rgba(16, 185, 129, 0.4);
   }
   
   .schedule-block.bg-yellow-500 {
-    background-color: rgba(250, 204, 21, 0.8);
+    background-color: rgba(250, 204, 21, 0.4);
   }
   
   .schedule-block.bg-yellow-100 {
-    background-color: rgba(254, 249, 195, 0.8);
+    background-color: rgba(254, 249, 195, 0.4);
   }
   
   .schedule-block.bg-red-500 {
-    background-color: rgba(239, 68, 68, 0.8);
+    background-color: rgba(239, 68, 68, 0.4);
   }
   
   .schedule-day-name {
@@ -214,13 +214,13 @@ ul {
   
   .event-name {
     color: #000;
-    font-weight: bold;
+    font-weight: 400;
     margin-bottom: 4px;
   }
   
   .event-location {
+    color: #000;
     font-size: 12px;
-    color: rgba(255,255,255,0.0);
   }
   
   /* Color variations */
@@ -231,42 +231,58 @@ ul {
   .schedule-block.red { background-color: #EF4444; color: black; }
 
   .toggle-schedule-btn {
-    background-color: #4a5568;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
+    background-color: transparent;
+    color: #4a5568;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #4a5568;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin-bottom: 1rem;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
   }
 
   .toggle-schedule-btn:hover {
-    background-color: #2d3748;
+    background-color: #4a5568;
+    color: white;
   }
 
   .filter-button {
     padding: 8px 16px;
     border-radius: 6px;
-    border: none;
+    border: 1px solid #2b6cb0;
     cursor: pointer;
     font-size: 1rem;
     margin-right: 8px;
     margin-bottom: 8px;
     transition: all 0.2s ease;
-    background-color: #4a5568;
-    color: white;
+    background-color: white;
+    color: #2b6cb0;
   }
 
   .filter-button.active {
     background-color: #2b6cb0;
+    color: white;
   }
 
   .filter-button:hover {
-    background-color: #2d3748;
+    background-color: #2b6cb0;
+    color: white;
   }
 
   .filter-button.active:hover {
     background-color: #2c5282;
+  }
+
+  .todo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .todo-grid {
+      grid-template-columns: 1fr;
+    }
   }
