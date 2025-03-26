@@ -108,20 +108,6 @@ export default function SpecialWeekTodos() {
         />
         <h1>Special Week 2025 - Schedule and To-Dos</h1>
       </div>
-      <h4>
-        If you {" "}
-        <span 
-          className="calendar-link"
-          onClick={() => setShowSchedule(!showSchedule)}
-        >
-          click here
-        </span>{" "}
-        you will see the schedule for the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
-        <br/><br/>
-        Below the schedule are the to-dos that need to be completed for the week, and that is where I need your help 😊. By clicking on the button that shows your name,
-        you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
-        basis (📢).
-      </h4>
 
       {/* Schedule block */}
       <div className="section-header">
@@ -132,6 +118,11 @@ export default function SpecialWeekTodos() {
         >
           {showSchedule ? 'Hide Schedule' : 'Show Schedule'}
         </button>
+      </div>
+      <div>
+      <h4>
+        Clicking the "Show Schedule" button will open up the daily schedule, starting on Tuesday the 13th of May and finishing Friday the 16th of May in the afternoon. 
+        </h4>
       </div>
       {showSchedule && (
         <div className="modal-overlay" onClick={() => setShowSchedule(false)}>
@@ -147,6 +138,13 @@ export default function SpecialWeekTodos() {
       {/* Dynamic Filter buttons */}
       <div className="section-header">
         <h2>To-dos</h2>
+      </div>
+      <div>
+      <h4>
+        Here is where I need your help 😊. By clicking on the button that shows your name,
+        you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
+        basis (📢).
+      </h4>
       </div>
       <div className="mb-4">
         <button 
