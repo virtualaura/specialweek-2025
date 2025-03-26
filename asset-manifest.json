@@ -1,15 +1,19 @@
 {
   "files": {
-    "main.css": "/specialweek-2025/static/css/main.b7334490.chunk.css",
-    "main.js": "/specialweek-2025/static/js/main.eb88d715.chunk.js",
-    "main.js.map": "/specialweek-2025/static/js/main.eb88d715.chunk.js.map",
-    "runtime~main.js": "/specialweek-2025/static/js/runtime~main.328df5c1.js",
-    "runtime~main.js.map": "/specialweek-2025/static/js/runtime~main.328df5c1.js.map",
-    "static/js/2.2f398534.chunk.js": "/specialweek-2025/static/js/2.2f398534.chunk.js",
-    "static/js/2.2f398534.chunk.js.map": "/specialweek-2025/static/js/2.2f398534.chunk.js.map",
+    "main.css": "/specialweek-2025/static/css/main.a9ad9470.chunk.css",
+    "main.js": "/specialweek-2025/static/js/main.9a84f3c0.chunk.js",
+    "main.js.map": "/specialweek-2025/static/js/main.9a84f3c0.chunk.js.map",
+    "runtime~main.js": "/specialweek-2025/static/js/runtime~main.5ecbd54f.js",
+    "runtime~main.js.map": "/specialweek-2025/static/js/runtime~main.5ecbd54f.js.map",
+    "static/js/2.7a7b1505.chunk.js": "/specialweek-2025/static/js/2.7a7b1505.chunk.js",
+    "static/js/2.7a7b1505.chunk.js.map": "/specialweek-2025/static/js/2.7a7b1505.chunk.js.map",
+    "static/js/3.1070cadc.chunk.js": "/specialweek-2025/static/js/3.1070cadc.chunk.js",
+    "static/js/3.1070cadc.chunk.js.map": "/specialweek-2025/static/js/3.1070cadc.chunk.js.map",
+    "static/js/4.355f0e43.chunk.js": "/specialweek-2025/static/js/4.355f0e43.chunk.js",
+    "static/js/4.355f0e43.chunk.js.map": "/specialweek-2025/static/js/4.355f0e43.chunk.js.map",
     "index.html": "/specialweek-2025/index.html",
-    "precache-manifest.e56bc58c580afed8c0284ab45eb24fef.js": "/specialweek-2025/precache-manifest.e56bc58c580afed8c0284ab45eb24fef.js",
+    "precache-manifest.b0283202dc56e29abd19509726af1403.js": "/specialweek-2025/precache-manifest.b0283202dc56e29abd19509726af1403.js",
     "service-worker.js": "/specialweek-2025/service-worker.js",
-    "static/css/main.b7334490.chunk.css.map": "/specialweek-2025/static/css/main.b7334490.chunk.css.map"
+    "static/css/main.a9ad9470.chunk.css.map": "/specialweek-2025/static/css/main.a9ad9470.chunk.css.map"
   }
 }
