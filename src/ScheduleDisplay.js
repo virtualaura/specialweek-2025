@@ -85,7 +85,7 @@ const ScheduleDisplay = () => {
     }
 
     // Base height for 30-minute blocks
-    const baseHeight = 15;
+    const baseHeight = 25;
     // Calculate height based on duration
     const calculatedHeight = Math.max(
       baseHeight,

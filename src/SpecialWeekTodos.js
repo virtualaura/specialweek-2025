@@ -126,6 +126,9 @@ export default function SpecialWeekTodos() {
       {/* Schedule block */}
       {showSchedule && (
         <>
+          <div className="section-header">
+            <h2>Schedule</h2>
+          </div>
           <button 
             className="hide-calendar-btn"
             onClick={() => setShowSchedule(false)}
@@ -139,6 +142,9 @@ export default function SpecialWeekTodos() {
       )}
 
       {/* Dynamic Filter buttons */}
+      <div className="section-header">
+        <h2>To-dos</h2>
+      </div>
       <div className="mb-4">
         <button 
           className={`filter-button ${!filter ? 'active' : ''}`}

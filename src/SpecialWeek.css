@@ -152,7 +152,12 @@ ul {
   
   .schedule-block.pitch-event {
     background-color: #4A5D65;
-    color: white;
+    color: #fff;
+  }
+  
+  .schedule-block.pitch-event .event-name,
+  .schedule-block.pitch-event .event-location {
+    color: #fff;
   }
   
   .schedule-day-name {
@@ -226,12 +231,21 @@ ul {
   .event-name {
     color: #000;
     font-weight: 400;
-    margin-bottom: 0px;
+    margin-bottom: 4px;
   }
   
   .event-location {
     color: #000;
     font-size: 12px;
+  }
+  
+  .schedule-block.pitch-event .event-name {
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  
+  .schedule-block.pitch-event .event-location {
+    color: #fff;
   }
   
   /* Color variations */
