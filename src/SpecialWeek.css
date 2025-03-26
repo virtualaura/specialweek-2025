@@ -122,30 +122,31 @@ ul {
     border-radius: 8px;
     color: white;
     transition: opacity 0.3s ease;
+    font-size: 0.9rem;
   }
   
   .schedule-block.bg-blue-500 {
-    background-color: rgba(59, 130, 246, 0.4);
+    background-color: rgba(59, 130, 246, 0.2);
   }
   
   .schedule-block.bg-green-500 {
-    background-color: rgba(16, 185, 129, 0.4);
+    background-color: rgba(16, 185, 129, 0.2);
   }
   
   .schedule-block.bg-yellow-500 {
-    background-color: rgba(250, 204, 21, 0.4);
+    background-color: rgba(250, 204, 21, 0.2);
   }
   
   .schedule-block.bg-yellow-100 {
-    background-color: rgba(254, 249, 195, 0.4);
+    background-color: rgba(254, 249, 195, 0.2);
   }
   
   .schedule-block.bg-red-500 {
-    background-color: rgba(239, 68, 68, 0.4);
+    background-color: rgba(239, 68, 68, 0.2);
   }
   
   .schedule-day-name {
-    font-size: 1.5rem;
+    font-size: 1rem;
     font-weight: bold;
     text-align: center;
     margin-bottom: 10px;
@@ -279,6 +280,44 @@ ul {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1rem;
     margin-top: 1rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  .todo-grid li {
+    list-style: none;
+    margin-bottom: 10px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .hide-calendar-btn {
+    background-color: transparent;
+    color: #4a5568;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #4a5568;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+    transition: all 0.2s ease;
+  }
+
+  .hide-calendar-btn:hover {
+    background-color: #4a5568;
+    color: white;
+  }
+
+  .calendar-link {
+    color: #2b6cb0;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .calendar-link:hover {
+    color: #2c5282;
   }
 
   @media (max-width: 768px) {
@@ -286,3 +325,24 @@ ul {
       grid-template-columns: 1fr;
     }
   }
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.header-image {
+  position: absolute;
+  left: 0;
+  height: 2.5rem;
+  width: auto;
+}
+
+h1 {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}

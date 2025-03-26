@@ -100,16 +100,23 @@ export default function SpecialWeekTodos() {
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <h1 className="text-xl font-bold mb-4">Special Week 2025 - Schedule and To-Dos</h1>
+      <div className="header-container">
+        <img 
+          src={process.env.PUBLIC_URL + "/rosey-lineaire-quadri.png"} 
+          alt="Special Week Logo" 
+          className="header-image"
+        />
+        <h1>Special Week 2025 - Schedule and To-Dos</h1>
+      </div>
       <h4>
         Below please find details for Special Week 2025 planning.{" "}
-        <button 
-          className="text-blue-600 hover:text-blue-800 underline"
+        <span 
+          className="calendar-link"
           onClick={() => setShowSchedule(!showSchedule)}
         >
-          {showSchedule ? "Hide calendar" : "Show calendar"}
-        </button>{" "}
-        for the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
+          click here
+        </span>{" "}
+        to see the calendar for the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
         <br/><br/>
         The second block has the to-dos that need to be completed for the week, and that is where I need your help 😊. By clicking on the button below the calendar that shows your name,
         you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
@@ -117,9 +124,19 @@ export default function SpecialWeekTodos() {
       </h4>
 
       {/* Schedule block */}
-      <div id="schedule-block" className="my-6" style={{ display: showSchedule ? 'block' : 'none' }}>
-        <ScheduleDisplay schedule={schedule} />
-      </div>
+      {showSchedule && (
+        <>
+          <button 
+            className="hide-calendar-btn"
+            onClick={() => setShowSchedule(false)}
+          >
+            Hide Calendar
+          </button>
+          <div id="schedule-block" className="my-6">
+            <ScheduleDisplay schedule={schedule} />
+          </div>
+        </>
+      )}
 
       {/* Dynamic Filter buttons */}
       <div className="mb-4">
@@ -156,9 +173,11 @@ export default function SpecialWeekTodos() {
               </span>
             </div>
             <div className="mt-2 ml-8 text-gray-700 text-sm space-y-1">
-              <div className="todo-detail">
-                <span className="font-semibold text-gray-900">📅</span> {todo.due_date}
-              </div>
+              {filter === 'Laura' && (
+                <div className="todo-detail">
+                  <span className="font-semibold text-gray-900">📅</span> {todo.due_date}
+                </div>
+              )}
               <div className="todo-detail">
                 <span className="font-semibold text-gray-900">👤</span> 
                 {todo.who ? todo.who.join(", ") : ""}
