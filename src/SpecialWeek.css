@@ -126,23 +126,28 @@ ul {
   }
   
   .schedule-block.bg-blue-500 {
-    background-color: rgba(59, 130, 246, 0.2);
+    background-color: #49C8F5;
   }
   
   .schedule-block.bg-green-500 {
-    background-color: rgba(16, 185, 129, 0.2);
+    background-color: #AFE1FC;
   }
   
   .schedule-block.bg-yellow-500 {
-    background-color: rgba(250, 204, 21, 0.2);
+    background-color: #E2F3FD;
   }
   
   .schedule-block.bg-yellow-100 {
-    background-color: rgba(254, 249, 195, 0.2);
+    background-color: #FFFEF9;
   }
   
   .schedule-block.bg-red-500 {
-    background-color: rgba(239, 68, 68, 0.2);
+    background-color: #C5D4DB;
+  }
+  
+  .schedule-block.pitch-event {
+    background-color: #4A5D65;
+    color: white;
   }
   
   .schedule-day-name {
@@ -225,11 +230,11 @@ ul {
   }
   
   /* Color variations */
-  .schedule-block.blue { background-color: #1D4ED8; color: black; }
-  .schedule-block.green { background-color: #10B981; color: black; }
-  .schedule-block.yellow { background-color: #F59E0B; color: black; }
-  .schedule-block.lightyellow { background-color: #d4e216; color: black; }
-  .schedule-block.red { background-color: #EF4444; color: black; }
+  .schedule-block.blue { background-color: #49C8F5; color: black; }
+  .schedule-block.green { background-color: #AFE1FC; color: black; }
+  .schedule-block.yellow { background-color: #E2F3FD; color: black; }
+  .schedule-block.lightyellow { background-color: #FFFEF9; color: black; }
+  .schedule-block.red { background-color: #C5D4DB; color: black; }
 
   .toggle-schedule-btn {
     background-color: transparent;
@@ -332,12 +337,13 @@ ul {
   justify-content: center;
   position: relative;
   margin-bottom: 1rem;
+  height: 8rem;
 }
 
 .header-image {
   position: absolute;
   left: 0;
-  height: 2.5rem;
+  height: 8rem;
   width: auto;
 }
 

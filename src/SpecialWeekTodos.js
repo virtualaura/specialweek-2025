@@ -109,16 +109,16 @@ export default function SpecialWeekTodos() {
         <h1>Special Week 2025 - Schedule and To-Dos</h1>
       </div>
       <h4>
-        Below please find details for Special Week 2025 planning.{" "}
+        Welcome everyone! If you {" "}
         <span 
           className="calendar-link"
           onClick={() => setShowSchedule(!showSchedule)}
         >
           click here
         </span>{" "}
-        to see the calendar for the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
+        you will see the calendar for the week, which starts on Tuesday the 13th of May in the morning and finishes Friday the 16th of May in the afternoon. 
         <br/><br/>
-        The second block has the to-dos that need to be completed for the week, and that is where I need your help 😊. By clicking on the button below the calendar that shows your name,
+        Below the calendar are the to-dos that need to be completed for the week, and that is where I need your help 😊. By clicking on the button below the calendar that shows your name,
         you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
         basis (📢).
       </h4>
