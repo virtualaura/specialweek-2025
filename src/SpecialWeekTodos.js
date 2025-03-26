@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import ScheduleDisplay from "./ScheduleDisplay";
+import html2pdf from 'html2pdf.js';
 
 // Helper function to extract unique names from the 'who' and 'cc' fields
 const getUniqueNames = (tasks) => {
@@ -22,6 +23,27 @@ export default function SpecialWeekTodos() {
   const [filter, setFilter] = useState(null);
   const [names, setNames] = useState([]);
   const [showSchedule, setShowSchedule] = useState(false);
+
+  const generatePDF = async (e) => {
+    e.preventDefault();
+    try {
+      const element = document.getElementById('schedule-block');
+      if (!element) {
+        console.error('Schedule element not found');
+        return;
+      }
+      const opt = {
+        margin: 1,
+        filename: 'special-week-schedule.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+      };
+      await html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
 
   useEffect(() => {
     // Fetch and parse tasks CSV
