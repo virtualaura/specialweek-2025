@@ -21,7 +21,7 @@ export default function SpecialWeekTodos() {
   const [schedule, setSchedule] = useState([]);
   const [filter, setFilter] = useState(null);
   const [names, setNames] = useState([]);
-  const [showSchedule, setShowSchedule] = useState(true);
+  const [showSchedule, setShowSchedule] = useState(false);
 
   useEffect(() => {
     // Fetch and parse tasks CSV
@@ -124,21 +124,19 @@ export default function SpecialWeekTodos() {
       </h4>
 
       {/* Schedule block */}
+      <div className="section-header">
+        <h2>Schedule</h2>
+        <button 
+          className="hide-calendar-btn"
+          onClick={() => setShowSchedule(!showSchedule)}
+        >
+          {showSchedule ? 'Hide Schedule' : 'Show Schedule'}
+        </button>
+      </div>
       {showSchedule && (
-        <>
-          <div className="section-header">
-            <h2>Schedule</h2>
-          </div>
-          <button 
-            className="hide-calendar-btn"
-            onClick={() => setShowSchedule(false)}
-          >
-            Hide Calendar
-          </button>
-          <div id="schedule-block" className="my-6">
-            <ScheduleDisplay schedule={schedule} />
-          </div>
-        </>
+        <div id="schedule-block" className="my-6">
+          <ScheduleDisplay schedule={schedule} />
+        </div>
       )}
 
       {/* Dynamic Filter buttons */}
