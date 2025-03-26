@@ -120,7 +120,7 @@ export default function SpecialWeekTodos() {
         </button>
       </div>
       <div>
-      <h4>
+      <h4 id="schedule">
         Clicking the "Show Schedule" button will open up the daily schedule, starting on Tuesday the 13th of May and finishing Friday the 16th of May in the afternoon. 
         </h4>
       </div>
@@ -140,7 +140,7 @@ export default function SpecialWeekTodos() {
         <h2>To-dos</h2>
       </div>
       <div>
-      <h4>
+      <h4 id="todos">
         Here is where I need your help 😊. By clicking on the button that shows your name,
         you'll see the information that is relevant for you - either because your feedback is needed (if your name is in the 👤 section), or on an FYI
         basis (📢).
