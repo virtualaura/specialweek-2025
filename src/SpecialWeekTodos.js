@@ -33,11 +33,22 @@ export default function SpecialWeekTodos() {
         return;
       }
       const opt = {
-        margin: 1,
-        filename: 'special-week-schedule.pdf',
+        margin: 0.5,
+        filename: 'Rosey Special Week 2025.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          windowWidth: 1920,
+          windowHeight: 1080
+        },
+        jsPDF: { 
+          unit: 'in', 
+          format: 'a4', 
+          orientation: 'landscape',
+          compress: true
+        }
       };
       await html2pdf().set(opt).from(element).save();
     } catch (error) {
@@ -57,7 +68,8 @@ export default function SpecialWeekTodos() {
         complete: (result) => {
           const formattedTasks = result.data.map((task) => ({
             ...task,
-            who: task.who.split(";"),
+            who: task.who ? task.who.split(";") : [],
+            cc: task.cc || "",
             due_date: formatDate(task.due_date),
           }));
           setTasks(formattedTasks.sort((a, b) => new Date(a.due_date) - new Date(b.due_date)));

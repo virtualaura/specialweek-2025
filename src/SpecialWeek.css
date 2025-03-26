@@ -502,3 +502,54 @@ h1 {
   background-color: #e5e7eb;
   border-color: #d1d5db;
 }
+
+#schedule-block {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+#schedule-block .schedule-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+#schedule-block .schedule-block {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+#schedule-block .event-block {
+  padding: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+#schedule-block h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+#schedule-block .event-time {
+  font-size: 0.875rem;
+}
+
+#schedule-block .event-title {
+  font-size: 0.875rem;
+}
+
+#schedule-block .event-location {
+  font-size: 0.75rem;
+}
+
+@media print {
+  #schedule-block {
+    page-break-inside: avoid;
+  }
+  
+  #schedule-block .schedule-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+}
