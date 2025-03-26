@@ -143,8 +143,8 @@ export default function SpecialWeekTodos() {
       </div>
       <div>
       <h4 id="schedule">
-        Clicking the "Show Schedule" button will open up the daily schedule, starting on Tuesday the 13th of May and finishing Friday the 16th of May in the afternoon. If you want a pdf version of the schedule, <a href="">click here </a>.
-        </h4>
+        Clicking the "Show Schedule" button will open up the daily schedule, starting on Tuesday the 13th of May and finishing Friday the 16th of May in the afternoon. If you want a pdf version of the schedule, <a href="#" onClick={generatePDF} className="calendar-link">click here</a>.
+      </h4>
       </div>
       {showSchedule && (
         <div className="modal-overlay" onClick={() => setShowSchedule(false)}>
