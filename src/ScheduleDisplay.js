@@ -76,22 +76,25 @@ const ScheduleDisplay = () => {
     const end = timeToMinutes(endTime);
     const duration = end - start;
 
-    // Base minimum block height
-    const minBlockHeight = 40;
-    // Scaling factor
-    const pixelsPerQuarter = 10;
-    // Ensure minimum height while scaling
+    // Special case for Hackathon - don't resize
+    if (isHackathon) {
+      return {
+        height: '3.5rem',
+        top: `${((start - 8.5 * 60) / 15) * 2}px`
+      };
+    }
+
+    // Base height for 30-minute blocks
+    const baseHeight = 15;
+    // Calculate height based on duration
     const calculatedHeight = Math.max(
-      minBlockHeight, 
-      Math.min(
-        (duration / 15) * pixelsPerQuarter,
-        isHackathon ? 3.5 * 60 * (pixelsPerQuarter / 15) : Infinity
-      )
+      baseHeight,
+      (duration / 30) * baseHeight
     );
 
     return {
       height: `${calculatedHeight}px`,
-      top: `${((start - 8.5 * 60) / 15) * pixelsPerQuarter}px`
+      top: `${((start - 8.5 * 60) / 15) * 2}px`
     };
   };
 

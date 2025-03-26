@@ -226,7 +226,7 @@ ul {
   .event-name {
     color: #000;
     font-weight: 400;
-    margin-bottom: 4px;
+    margin-bottom: 0px;
   }
   
   .event-location {
