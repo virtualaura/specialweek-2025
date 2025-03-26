@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 import ScheduleDisplay from "./ScheduleDisplay";
-import { toPDF } from 'react-to-pdf';
+import html2pdf from 'html2pdf.js';
 
 // Helper function to extract unique names from the 'who' and 'cc' fields
 const getUniqueNames = (tasks) => {
@@ -28,13 +28,19 @@ export default function SpecialWeekTodos() {
   const generatePDF = async (e) => {
     e.preventDefault();
     try {
-      await toPDF(scheduleRef, {
+      const element = document.getElementById('schedule-block');
+      if (!element) {
+        console.error('Schedule element not found');
+        return;
+      }
+      const opt = {
+        margin: 1,
         filename: 'special-week-schedule.pdf',
-        page: {
-          format: 'a4',
-          orientation: 'landscape'
-        }
-      });
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+      };
+      await html2pdf().set(opt).from(element).save();
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
@@ -52,7 +58,8 @@ export default function SpecialWeekTodos() {
         complete: (result) => {
           const formattedTasks = result.data.map((task) => ({
             ...task,
-            who: task.who.split(";"),
+            who: task.who ? task.who.split(";") : [],
+            cc: task.cc || "",
             due_date: formatDate(task.due_date),
           }));
           setTasks(formattedTasks.sort((a, b) => new Date(a.due_date) - new Date(b.due_date)));
