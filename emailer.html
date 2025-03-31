@@ -344,14 +344,14 @@ Best regards,
             
             try {
                 // Load contacts
-                const contactsCSV = await loadCSV('public/contacts.csv');
+                const contactsCSV = await loadCSV('contacts.csv');
                 if (!contactsCSV) {
                     throw new Error('Failed to load contacts.csv');
                 }
                 contacts = parseContacts(contactsCSV);
                 
                 // Load tasks
-                const tasksCSV = await loadCSV('public/tasks.csv');
+                const tasksCSV = await loadCSV('tasks.csv');
                 if (!tasksCSV) {
                     throw new Error('Failed to load tasks.csv');
                 }
