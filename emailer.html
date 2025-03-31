@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks Email Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: white;
+        }
+        .status-not-done {
+            background-color: #ff6b6b;
+        }
+        .status-done {
+            background-color: #51cf66;
+        }
+        .email-preview {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .email-body {
+            white-space: pre-wrap;
+            background: white;
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .error {
+            color: #d9534f;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #5cb85c;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tasks Email Generator</h1>
+    
+    <div id="dataStatus" class="success"></div>
+    
+    <div class="form-group">
+        <label for="emailSubject">Email Subject:</label>
+        <input type="text" id="emailSubject" placeholder="Task Reminder: {{description}}">
+    </div>
+    <div class="form-group">
+        <label for="emailTemplate">Email Template:</label>
+        <textarea id="emailTemplate" placeholder="Hello {{name}},
+
+This is a reminder about your task: {{description}} that is due on {{due_date}}.
+
+Notes: {{notes}}
+
+Best regards,
+[Your Name]"></textarea>
+    </div>
+    
+    <button id="refreshData">Refresh Data</button>
+    <button id="generateEmails">Generate Emails</button>
+    
+    <h2>Tasks</h2>
+    <div id="tasksContainer">
+        <div class="loading">Loading tasks...</div>
+    </div>
+    
+    <h2>Email Previews</h2>
+    <div id="emailPreviewContainer">
+        <p>Configure the email template above and click "Generate Emails".</p>
+    </div>
+    
+    <script>
+        // Store contacts and tasks
+        let contacts = [];
+        let tasks = [];
+        
+        // Load CSV data
+        async function loadCSV(filePath) {
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${filePath}: ${response.status} ${response.statusText}`);
+                }
+                return await response.text();
+            } catch (error) {
+                console.error(`Error loading ${filePath}:`, error);
+                return null;
+            }
+        }
+        
+        // Parse contacts from CSV text
+        function parseContacts(csvText) {
+            if (!csvText) return [];
+            
+            const lines = csvText.trim().split('\n');
+            return lines.map(line => {
+                const [name, email] = line.split(',').map(item => item.trim());
+                return { name, email };
+            }).filter(contact => contact.name && contact.email);
+        }
+        
+        // Parse tasks from CSV text
+        function parseTasks(csvText) {
+            if (!csvText) return [];
+            
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',').map(header => header.trim());
+            
+            return lines.slice(1).map(line => {
+                const values = line.split(',');
+                const task = {};
+                
+                headers.forEach((header, index) => {
+                    task[header] = values[index] ? values[index].trim() : '';
+                });
+                
+                return task;
+            }).filter(task => task.description);
+        }
+        
+        // Find email for a person
+        function findEmailForPerson(name) {
+            const contact = contacts.find(c => c.name.toLowerCase() === name.toLowerCase().trim());
+            return contact ? contact.email : null;
+        }
+        
+        // Display tasks in a table
+        function displayTasks() {
+            const container = document.getElementById('tasksContainer');
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="error">No tasks found. Please check public/tasks.csv</div>';
+                return;
+            }
+            
+            // Create table
+            let html = `
+                <table id="taskTable">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th>Who</th>
+                            <th>CC</th>
+                            <th>Description</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Add rows
+            tasks.forEach(task => {
+                html += `
+                    <tr>
+                        <td>
+                            <span class="status-badge status-${task.status.replace(/\s+/g, '-')}">
+                                ${task.status}
+                            </span>
+                        </td>
+                        <td>${task.due_date || ''}</td>
+                        <td>${task.who || ''}</td>
+                        <td>${task.cc || ''}</td>
+                        <td>${task.description || ''}</td>
+                        <td>${task.notes || ''}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        // Generate email previews
+        function generateEmailPreviews() {
+            const subjectTemplate = document.getElementById('emailSubject').value || 'Task Reminder';
+            const bodyTemplate = document.getElementById('emailTemplate').value || 'Hello {{name}},\n\nThis is a reminder about your task.';
+            
+            const previewContainer = document.getElementById('emailPreviewContainer');
+            previewContainer.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                previewContainer.innerHTML = '<div class="error">No tasks available. Please check public/tasks.csv</div>';
+                return;
+            }
+            
+            if (contacts.length === 0) {
+                previewContainer.innerHTML = '<div class="error">No contacts available. Please check public/contacts.csv</div>';
+                return;
+            }
+            
+            let emailCount = 0;
+            
+            tasks.forEach(task => {
+                // Handle multiple assignees separated by semicolons
+                const assignees = task.who ? task.who.split(';').map(name => name.trim()) : [];
+                const ccPeople = task.cc ? task.cc.split(';').map(name => name.trim()) : [];
+                
+                // For each assignee
+                assignees.forEach(assignee => {
+                    const email = findEmailForPerson(assignee);
+                    if (!email) return; // Skip if no email found
+                    
+                    // Find CC emails
+                    const ccEmails = ccPeople
+                        .map(name => findEmailForPerson(name))
+                        .filter(email => email);
+                    
+                    // Replace template variables
+                    let subject = subjectTemplate.replace(/{{(\w+)}}/g, (match, variable) => {
+                        return task[variable] || match;
+                    });
+                    
+                    let body = bodyTemplate.replace(/{{(\w+)}}/g, (match, variable) => {
+                        if (variable === 'name') return assignee;
+                        return task[variable] || match;
+                    });
+                    
+                    const emailDiv = document.createElement('div');
+                    emailDiv.className = 'email-preview';
+                    
+                    emailDiv.innerHTML = `
+                        <strong>To:</strong> ${assignee} &lt;${email}&gt;<br>
+                        ${ccEmails.length > 0 ? `<strong>CC:</strong> ${ccEmails.join(', ')}<br>` : ''}
+                        <strong>Subject:</strong> ${subject}<br>
+                        <strong>Body:</strong><br>
+                        <pre class="email-body">${body}</pre>
+                        <button class="send-email-btn" data-to="${email}" data-cc="${ccEmails.join(',')}" data-subject="${encodeURIComponent(subject)}" data-body="${encodeURIComponent(body)}">Open in Email Client</button>
+                    `;
+                    
+                    previewContainer.appendChild(emailDiv);
+                    emailCount++;
+                });
+            });
+            
+            if (emailCount === 0) {
+                previewContainer.innerHTML = '<div class="error">No matching contacts found for any task assignees. Please check your contacts.csv file.</div>';
+                return;
+            }
+            
+            // Add event listeners to send email buttons
+            document.querySelectorAll('.send-email-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const to = e.target.getAttribute('data-to');
+                    const cc = e.target.getAttribute('data-cc');
+                    const subject = decodeURIComponent(e.target.getAttribute('data-subject'));
+                    const body = decodeURIComponent(e.target.getAttribute('data-body'));
+                    
+                    openEmailClient(to, cc, subject, body);
+                });
+            });
+        }
+        
+        // Open the default email client
+        function openEmailClient(to, cc, subject, body) {
+            let mailtoLink = `mailto:${to}`;
+            
+            const params = [];
+            if (cc) params.push(`cc=${cc}`);
+            if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
+            if (body) params.push(`body=${encodeURIComponent(body)}`);
+            
+            if (params.length > 0) {
+                mailtoLink += '?' + params.join('&');
+            }
+            
+            window.location.href = mailtoLink;
+        }
+        
+        // Load data from CSV files
+        async function loadData() {
+            const statusElement = document.getElementById('dataStatus');
+            statusElement.innerHTML = 'Loading data...';
+            statusElement.className = 'loading';
+            
+            try {
+                // Load contacts
+                const contactsCSV = await loadCSV('public/contacts.csv');
+                if (!contactsCSV) {
+                    throw new Error('Failed to load contacts.csv');
+                }
+                contacts = parseContacts(contactsCSV);
+                
+                // Load tasks
+                const tasksCSV = await loadCSV('public/tasks.csv');
+                if (!tasksCSV) {
+                    throw new Error('Failed to load tasks.csv');
+                }
+                tasks = parseTasks(tasksCSV);
+                
+                // Display tasks
+                displayTasks();
+                
+                statusElement.innerHTML = `Successfully loaded ${contacts.length} contacts and ${tasks.length} tasks.`;
+                statusElement.className = 'success';
+            } catch (error) {
+                console.error('Error loading data:', error);
+                statusElement.innerHTML = `Error loading data: ${error.message}`;
+                statusElement.className = 'error';
+            }
+        }
+        
+        // Set up event listeners
+        document.getElementById('refreshData').addEventListener('click', loadData);
+        document.getElementById('generateEmails').addEventListener('click', generateEmailPreviews);
+        
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
