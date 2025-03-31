@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import './index.css';
 import './SpecialWeek.css';
+import { eventScheduleData } from '../data/eventScheduleData';
 
-const ScheduleDisplay = () => {
-  const [scheduleData, setScheduleData] = useState([]);
+//const ScheduleDisplay = () => {
+  //const [scheduleData, setScheduleData] = useState([]);
 
-  useEffect(() => {
+const ScheduleDisplay: React.FC = () => {
+  const [scheduleData, setScheduleData] = useState(eventScheduleData);
+  
+/*  useEffect(() => {
     // Directly create the data structure
     const rawData = [
       { day: 'Tuesday', start_time: '08:40', end_time: '10:10', event: 'Presentation: Introduction & Planning', location: 'Auditoire' },
@@ -34,7 +38,7 @@ const ScheduleDisplay = () => {
       { day: 'Friday', start_time: '10:45', end_time: '14:00', event: 'Team Work & Box Lunch', location: 'on-site' },
       { day: 'Friday', start_time: '14:00', end_time: '16:00', event: 'Pitch Event', location: 'Auditoire' }
     ];
-
+*/
     // Group by day
     const groupedSchedule = rawData.reduce((acc, event) => {
       if (!acc[event.day]) {
