@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import ScheduleDisplay from "./ScheduleDisplay";
+import { eventScheduleData } from '../data/eventScheduleData';
 import html2pdf from 'html2pdf.js';
 
 // Helper function to extract unique names from the 'who' and 'cc' fields
