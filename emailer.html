@@ -370,7 +370,13 @@ Best regards,
             static openEmailClient(to, cc, subject, body) {
                 logDebug("Opening email client with params:", { to, cc, subject: subject.substring(0, 30) + "..." });
                 
-                let mailtoLink = `mailto:${to}`;
+                // Create a hidden link element for the mailto
+                const mailtoLink = document.createElement('a');
+                mailtoLink.style.display = 'none';
+                document.body.appendChild(mailtoLink);
+                
+                // Construct mailto URL
+                let mailtoUrl = `mailto:${to}`;
                 
                 const params = [];
                 if (cc) params.push(`cc=${cc}`);
@@ -378,11 +384,21 @@ Best regards,
                 if (body) params.push(`body=${encodeURIComponent(body)}`);
                 
                 if (params.length > 0) {
-                    mailtoLink += '?' + params.join('&');
+                    mailtoUrl += '?' + params.join('&');
                 }
                 
-                logDebug("Opening mailto link (length):", mailtoLink.length);
-                window.location.href = mailtoLink;
+                logDebug("Opening mailto link (length):", mailtoUrl.length);
+                
+                // Use the link to open the email client
+                mailtoLink.href = mailtoUrl;
+                mailtoLink.click();
+                
+                // Clean up the DOM
+                setTimeout(() => {
+                    document.body.removeChild(mailtoLink);
+                }, 100);
+                
+                return true;
             }
 
             /**
@@ -529,23 +545,28 @@ Best regards,
                         <strong>Subject:</strong> ${email.subject}<br>
                         <strong>Body:</strong><br>
                         <pre class="email-body">${email.body}</pre>
-                        <button class="send-email-btn" data-to="${email.to}" data-cc="${email.cc}" data-subject="${encodeURIComponent(email.subject)}" data-body="${encodeURIComponent(email.body)}">Open in Email Client</button>
+                        <button class="send-email-btn" data-index="${index}">Open in Email Client</button>
                     `;
                     
                     previewContainer.appendChild(emailDiv);
                 });
                 
+                // Store emails in a global variable for access from event handlers
+                window.emailsToSend = emails;
+                
                 logDebug("Adding event listeners to send buttons");
                 // Add event listeners to send email buttons
                 document.querySelectorAll('.send-email-btn').forEach(button => {
                     button.addEventListener('click', (e) => {
-                        logDebug("Send email button clicked");
-                        const to = e.target.getAttribute('data-to');
-                        const cc = e.target.getAttribute('data-cc');
-                        const subject = decodeURIComponent(e.target.getAttribute('data-subject'));
-                        const body = decodeURIComponent(e.target.getAttribute('data-body'));
+                        const index = parseInt(e.target.getAttribute('data-index'));
+                        logDebug("Send email button clicked for index:", index);
                         
-                        TasksEmailer.openEmailClient(to, cc, subject, body);
+                        const email = window.emailsToSend[index];
+                        if (email) {
+                            TasksEmailer.openEmailClient(email.to, email.cc, email.subject, email.body);
+                        } else {
+                            logDebug("Error: Email not found at index", index);
+                        }
                     });
                 });
                 
