@@ -384,55 +384,44 @@ Best regards,
         
         // Generate email previews
         function generateEmailPreviews() {
-            const subjectTemplate = document.getElementById('emailSubject').value || 'Task Reminder';
-            const bodyTemplate = document.getElementById('emailTemplate').value || 'Hello {{name}},\n\nThis is a reminder about your task.';
-            
-            const previewContainer = document.getElementById('emailPreviewContainer');
-            previewContainer.innerHTML = '';
-            
-            try {
-                // Generate emails using the TasksEmailer class
-                const emails = tasksEmailer.generateEmailsForTasks(subjectTemplate, bodyTemplate);
-                
-                if (emails.length === 0) {
-                    previewContainer.innerHTML = '<div class="error">No emails generated. Please check your contacts and tasks.</div>';
-                    return;
-                }
-                
-                // Display email previews
-                emails.forEach(email => {
-                    const emailDiv = document.createElement('div');
-                    emailDiv.className = 'email-preview';
-                    
-                    emailDiv.innerHTML = `
-                        <strong>To:</strong> ${email.toName} &lt;${email.to}&gt;<br>
-                        ${email.cc ? `<strong>CC:</strong> ${email.cc}<br>` : ''}
-                        <strong>Subject:</strong> ${email.subject}<br>
-                        <strong>Body:</strong><br>
-                        <pre class="email-body">${email.body}</pre>
-                        <button class="send-email-btn" data-to="${email.to}" data-cc="${email.cc}" data-subject="${encodeURIComponent(email.subject)}" data-body="${encodeURIComponent(email.body)}">Open in Email Client</button>
-                    `;
-                    
-                    previewContainer.appendChild(emailDiv);
-                });
-                
-                // Add event listeners to send email buttons
-                document.querySelectorAll('.send-email-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const to = e.target.getAttribute('data-to');
-                        const cc = e.target.getAttribute('data-cc');
-                        const subject = decodeURIComponent(e.target.getAttribute('data-subject'));
-                        const body = decodeURIComponent(e.target.getAttribute('data-body'));
-                        
-                        TasksEmailer.openEmailClient(to, cc, subject, body);
-                    });
-                });
-                
-            } catch (error) {
-                console.error('Error generating emails:', error);
-                previewContainer.innerHTML = `<div class="error">Error generating emails: ${error.message}</div>`;
-            }
+    console.log("Generate Emails button clicked");
+    const subjectTemplate = document.getElementById('emailSubject').value || 'Task Reminder';
+    const bodyTemplate = document.getElementById('emailTemplate').value || 'Hello {{name}},\n\nThis is a reminder about your task.';
+    
+    console.log("Templates:", { subjectTemplate, bodyTemplate });
+    console.log("Task data available:", tasksEmailer.tasks);
+    console.log("Contact data available:", tasksEmailer.contacts);
+    
+    const previewContainer = document.getElementById('emailPreviewContainer');
+    previewContainer.innerHTML = '<div>Processing...</div>';
+    
+    try {
+        // Generate emails using the TasksEmailer class
+        if (!tasksEmailer.tasks || tasksEmailer.tasks.length === 0) {
+            previewContainer.innerHTML = '<div class="error">No tasks available. Please check if data loaded correctly.</div>';
+            return;
         }
+        
+        if (!tasksEmailer.contacts || tasksEmailer.contacts.length === 0) {
+            previewContainer.innerHTML = '<div class="error">No contacts available. Please check if data loaded correctly.</div>';
+            return;
+        }
+        
+        const emails = tasksEmailer.generateEmailsForTasks(subjectTemplate, bodyTemplate);
+        console.log("Generated emails:", emails);
+        
+        if (emails.length === 0) {
+            previewContainer.innerHTML = '<div class="error">No emails generated. Please check your contacts and tasks.</div>';
+            return;
+        }
+        
+        // Display email previews
+        // ... rest of the function
+    } catch (error) {
+        console.error('Error generating emails:', error);
+        previewContainer.innerHTML = `<div class="error">Error generating emails: ${error.message}</div>`;
+    }
+}
         
         // Set up event listeners
         document.getElementById('refreshData').addEventListener('click', loadData);
