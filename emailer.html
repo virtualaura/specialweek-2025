@@ -103,6 +103,19 @@
             padding: 10px;
             margin: 10px 0;
         }
+        #debugLog {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .debug-entry {
+            margin-bottom: 5px;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -139,8 +152,41 @@ Best regards,
         <p>Configure the email template above and click "Generate Emails".</p>
     </div>
     
+    <h2>Debug Log</h2>
+    <div id="debugLog"></div>
+    
+    <script>
+        // Debug logging function
+        function logDebug(message, data) {
+            console.log(message, data);
+            
+            const debugLog = document.getElementById('debugLog');
+            const entry = document.createElement('div');
+            entry.className = 'debug-entry';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            let logMessage = `[${timestamp}] ${message}`;
+            
+            if (data !== undefined) {
+                if (typeof data === 'object') {
+                    logMessage += `: ${JSON.stringify(data)}`;
+                } else {
+                    logMessage += `: ${data}`;
+                }
+            }
+            
+            entry.textContent = logMessage;
+            debugLog.appendChild(entry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        logDebug("Page script starting");
+    </script>
+
     <!-- Include TasksEmailer class first -->
     <script>
+        logDebug("Loading TasksEmailer class");
+        
         /**
          * TasksEmailer.js - A utility to generate emails from task data
          */
@@ -148,6 +194,7 @@ Best regards,
             constructor() {
                 this.contacts = [];
                 this.tasks = [];
+                logDebug("TasksEmailer instance created");
             }
 
             /**
@@ -155,29 +202,38 @@ Best regards,
              * @returns {Promise} Promise resolving when data is loaded
              */
             async loadData() {
+                logDebug("TasksEmailer.loadData() called");
                 try {
                     // Load contacts
+                    logDebug("Attempting to load contacts.csv");
                     const contactsResponse = await fetch('contacts.csv');
                     if (!contactsResponse.ok) {
                         throw new Error(`Failed to load contacts.csv: ${contactsResponse.status}`);
                     }
                     const contactsCSV = await contactsResponse.text();
+                    logDebug("Contacts CSV loaded, content length:", contactsCSV.length);
+                    
                     this.contacts = this.parseContacts(contactsCSV);
+                    logDebug("Contacts parsed", this.contacts.length);
                     
                     // Load tasks
+                    logDebug("Attempting to load tasks.csv");
                     const tasksResponse = await fetch('tasks.csv');
                     if (!tasksResponse.ok) {
                         throw new Error(`Failed to load tasks.csv: ${tasksResponse.status}`);
                     }
                     const tasksCSV = await tasksResponse.text();
+                    logDebug("Tasks CSV loaded, content length:", tasksCSV.length);
+                    
                     this.tasks = this.parseTasks(tasksCSV);
+                    logDebug("Tasks parsed", this.tasks.length);
                     
                     return {
                         contacts: this.contacts,
                         tasks: this.tasks
                     };
                 } catch (error) {
-                    console.error('Error loading data:', error);
+                    logDebug("Error in loadData", error.message);
                     throw error;
                 }
             }
@@ -188,9 +244,12 @@ Best regards,
              * @returns {Array} Array of contact objects
              */
             parseContacts(csvText) {
+                logDebug("Parsing contacts CSV");
                 if (!csvText) return [];
                 
                 const lines = csvText.trim().split('\n');
+                logDebug("Contact lines found:", lines.length);
+                
                 return lines.map(line => {
                     const [name, email] = line.split(',').map(item => item.trim());
                     return { name, email };
@@ -203,10 +262,14 @@ Best regards,
              * @returns {Array} Array of task objects
              */
             parseTasks(csvText) {
+                logDebug("Parsing tasks CSV");
                 if (!csvText) return [];
                 
                 const lines = csvText.trim().split('\n');
+                logDebug("Task lines found:", lines.length);
+                
                 const headers = lines[0].split(',').map(header => header.trim());
+                logDebug("Task headers:", headers);
                 
                 return lines.slice(1).map(line => {
                     const values = line.split(',');
@@ -226,10 +289,13 @@ Best regards,
              * @returns {string|null} Email address or null if not found
              */
             findEmailForPerson(name) {
+                logDebug("Looking up email for:", name);
                 const contact = this.contacts.find(c => 
                     c.name.toLowerCase() === name.toLowerCase().trim()
                 );
-                return contact ? contact.email : null;
+                const result = contact ? contact.email : null;
+                logDebug("Email lookup result:", result);
+                return result;
             }
 
             /**
@@ -239,17 +305,27 @@ Best regards,
              * @returns {Array} Array of email objects
              */
             generateEmailsForTasks(subjectTemplate, bodyTemplate) {
+                logDebug("Generating emails with templates:", { subject: subjectTemplate, body: bodyTemplate });
+                logDebug("Task count:", this.tasks.length);
+                logDebug("Contact count:", this.contacts.length);
+                
                 const emails = [];
 
                 this.tasks.forEach(task => {
                     // Handle multiple assignees separated by semicolons
                     const assignees = task.who ? task.who.split(';').map(name => name.trim()) : [];
+                    logDebug("Task assignees:", assignees);
+                    
                     const ccPeople = task.cc ? task.cc.split(';').map(name => name.trim()) : [];
+                    logDebug("Task CC people:", ccPeople);
                     
                     // For each assignee
                     assignees.forEach(assignee => {
                         const email = this.findEmailForPerson(assignee);
-                        if (!email) return; // Skip if no email found
+                        if (!email) {
+                            logDebug("No email found for assignee, skipping:", assignee);
+                            return;
+                        }
                         
                         // Find CC emails
                         const ccEmails = ccPeople
@@ -266,6 +342,8 @@ Best regards,
                             return task[variable] || match;
                         });
                         
+                        logDebug("Created email for:", assignee);
+                        
                         emails.push({
                             to: email,
                             toName: assignee,
@@ -278,6 +356,7 @@ Best regards,
                     });
                 });
                 
+                logDebug("Total emails generated:", emails.length);
                 return emails;
             }
 
@@ -289,6 +368,8 @@ Best regards,
              * @param {string} body - Email body
              */
             static openEmailClient(to, cc, subject, body) {
+                logDebug("Opening email client with params:", { to, cc, subject: subject.substring(0, 30) + "..." });
+                
                 let mailtoLink = `mailto:${to}`;
                 
                 const params = [];
@@ -300,6 +381,7 @@ Best regards,
                     mailtoLink += '?' + params.join('&');
                 }
                 
+                logDebug("Opening mailto link (length):", mailtoLink.length);
                 window.location.href = mailtoLink;
             }
 
@@ -308,6 +390,9 @@ Best regards,
              * @param {string} containerId - ID of container element
              */
             displayTasks(containerId) {
+                logDebug("Displaying tasks in container:", containerId);
+                logDebug("Tasks to display:", this.tasks.length);
+                
                 const container = document.getElementById(containerId);
                 if (this.tasks.length === 0) {
                     container.innerHTML = '<div class="error">No tasks found. Please check tasks.csv</div>';
@@ -351,31 +436,43 @@ Best regards,
                 
                 html += '</tbody></table>';
                 container.innerHTML = html;
+                logDebug("Task table displayed");
             }
         }
+        
+        logDebug("TasksEmailer class loaded");
     </script>
     
     <!-- Main application script -->
     <script>
+        logDebug("Main application script starting");
+        
         // Initialize the TasksEmailer
         const tasksEmailer = new TasksEmailer();
+        logDebug("tasksEmailer instance created");
         
         // Load data from CSV files
         async function loadData() {
+            logDebug("loadData() function called");
             const statusElement = document.getElementById('dataStatus');
             statusElement.innerHTML = 'Loading data...';
             statusElement.className = 'loading';
             
             try {
                 // Load data using the TasksEmailer class
+                logDebug("Calling tasksEmailer.loadData()");
                 await tasksEmailer.loadData();
+                logDebug("Data loaded successfully");
                 
                 // Display tasks
+                logDebug("Displaying tasks");
                 tasksEmailer.displayTasks('tasksContainer');
                 
                 statusElement.innerHTML = `Successfully loaded ${tasksEmailer.contacts.length} contacts and ${tasksEmailer.tasks.length} tasks.`;
                 statusElement.className = 'success';
+                logDebug("Data loading complete");
             } catch (error) {
+                logDebug("Error in loadData", error.message);
                 console.error('Error loading data:', error);
                 statusElement.innerHTML = `Error loading data: ${error.message}`;
                 statusElement.className = 'error';
@@ -384,51 +481,125 @@ Best regards,
         
         // Generate email previews
         function generateEmailPreviews() {
-    console.log("Generate Emails button clicked");
-    const subjectTemplate = document.getElementById('emailSubject').value || 'Task Reminder';
-    const bodyTemplate = document.getElementById('emailTemplate').value || 'Hello {{name}},\n\nThis is a reminder about your task.';
-    
-    console.log("Templates:", { subjectTemplate, bodyTemplate });
-    console.log("Task data available:", tasksEmailer.tasks);
-    console.log("Contact data available:", tasksEmailer.contacts);
-    
-    const previewContainer = document.getElementById('emailPreviewContainer');
-    previewContainer.innerHTML = '<div>Processing...</div>';
-    
-    try {
-        // Generate emails using the TasksEmailer class
-        if (!tasksEmailer.tasks || tasksEmailer.tasks.length === 0) {
-            previewContainer.innerHTML = '<div class="error">No tasks available. Please check if data loaded correctly.</div>';
-            return;
+            logDebug("generateEmailPreviews() function called");
+            
+            const subjectTemplate = document.getElementById('emailSubject').value || 'Task Reminder';
+            const bodyTemplate = document.getElementById('emailTemplate').value || 'Hello {{name}},\n\nThis is a reminder about your task.';
+            
+            logDebug("Email templates:", { subject: subjectTemplate, body: bodyTemplate });
+            
+            const previewContainer = document.getElementById('emailPreviewContainer');
+            previewContainer.innerHTML = '<div class="loading">Generating email previews...</div>';
+            
+            try {
+                if (!tasksEmailer.tasks || tasksEmailer.tasks.length === 0) {
+                    logDebug("No tasks available");
+                    previewContainer.innerHTML = '<div class="error">No tasks available. Please check if data loaded correctly.</div>';
+                    return;
+                }
+                
+                if (!tasksEmailer.contacts || tasksEmailer.contacts.length === 0) {
+                    logDebug("No contacts available");
+                    previewContainer.innerHTML = '<div class="error">No contacts available. Please check if data loaded correctly.</div>';
+                    return;
+                }
+                
+                logDebug("Generating emails");
+                // Generate emails using the TasksEmailer class
+                const emails = tasksEmailer.generateEmailsForTasks(subjectTemplate, bodyTemplate);
+                
+                if (emails.length === 0) {
+                    logDebug("No emails generated");
+                    previewContainer.innerHTML = '<div class="error">No emails generated. Please check your contacts and tasks.</div>';
+                    return;
+                }
+                
+                logDebug("Displaying email previews, count:", emails.length);
+                // Display email previews
+                previewContainer.innerHTML = '';
+                
+                emails.forEach((email, index) => {
+                    logDebug(`Creating preview for email ${index + 1}`);
+                    const emailDiv = document.createElement('div');
+                    emailDiv.className = 'email-preview';
+                    
+                    emailDiv.innerHTML = `
+                        <strong>To:</strong> ${email.toName} &lt;${email.to}&gt;<br>
+                        ${email.cc ? `<strong>CC:</strong> ${email.cc}<br>` : ''}
+                        <strong>Subject:</strong> ${email.subject}<br>
+                        <strong>Body:</strong><br>
+                        <pre class="email-body">${email.body}</pre>
+                        <button class="send-email-btn" data-to="${email.to}" data-cc="${email.cc}" data-subject="${encodeURIComponent(email.subject)}" data-body="${encodeURIComponent(email.body)}">Open in Email Client</button>
+                    `;
+                    
+                    previewContainer.appendChild(emailDiv);
+                });
+                
+                logDebug("Adding event listeners to send buttons");
+                // Add event listeners to send email buttons
+                document.querySelectorAll('.send-email-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        logDebug("Send email button clicked");
+                        const to = e.target.getAttribute('data-to');
+                        const cc = e.target.getAttribute('data-cc');
+                        const subject = decodeURIComponent(e.target.getAttribute('data-subject'));
+                        const body = decodeURIComponent(e.target.getAttribute('data-body'));
+                        
+                        TasksEmailer.openEmailClient(to, cc, subject, body);
+                    });
+                });
+                
+                logDebug("Email previews displayed successfully");
+                
+            } catch (error) {
+                logDebug("Error generating emails", error.message);
+                console.error('Error generating emails:', error);
+                previewContainer.innerHTML = `<div class="error">Error generating emails: ${error.message}</div>`;
+            }
         }
-        
-        if (!tasksEmailer.contacts || tasksEmailer.contacts.length === 0) {
-            previewContainer.innerHTML = '<div class="error">No contacts available. Please check if data loaded correctly.</div>';
-            return;
-        }
-        
-        const emails = tasksEmailer.generateEmailsForTasks(subjectTemplate, bodyTemplate);
-        console.log("Generated emails:", emails);
-        
-        if (emails.length === 0) {
-            previewContainer.innerHTML = '<div class="error">No emails generated. Please check your contacts and tasks.</div>';
-            return;
-        }
-        
-        // Display email previews
-        // ... rest of the function
-    } catch (error) {
-        console.error('Error generating emails:', error);
-        previewContainer.innerHTML = `<div class="error">Error generating emails: ${error.message}</div>`;
-    }
-}
         
         // Set up event listeners
-        document.getElementById('refreshData').addEventListener('click', loadData);
-        document.getElementById('generateEmails').addEventListener('click', generateEmailPreviews);
+        logDebug("Setting up event listeners");
+        
+        const refreshButton = document.getElementById('refreshData');
+        if (refreshButton) {
+            refreshButton.addEventListener('click', () => {
+                logDebug("Refresh button clicked");
+                loadData();
+            });
+            logDebug("Refresh button listener added");
+        } else {
+            logDebug("ERROR: Refresh button not found");
+        }
+        
+        const generateButton = document.getElementById('generateEmails');
+        if (generateButton) {
+            generateButton.addEventListener('click', () => {
+                logDebug("Generate emails button clicked");
+                generateEmailPreviews();
+            });
+            logDebug("Generate button listener added");
+        } else {
+            logDebug("ERROR: Generate button not found");
+        }
         
         // Load data on page load
-        window.addEventListener('DOMContentLoaded', loadData);
+        logDebug("Setting up DOMContentLoaded listener");
+        window.addEventListener('DOMContentLoaded', () => {
+            logDebug("DOMContentLoaded event fired");
+            loadData();
+        });
+        
+        // Also try loading immediately (in case DOMContentLoaded already fired)
+        logDebug("Attempting to load data immediately");
+        if (document.readyState === 'loading') {
+            logDebug("Document still loading, will wait for DOMContentLoaded");
+        } else {
+            logDebug("Document already loaded, calling loadData now");
+            loadData();
+        }
+        
+        logDebug("Main application script completed");
     </script>
 </body>
 </html>
