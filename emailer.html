@@ -443,6 +443,48 @@ class TasksEmailer {
         logDebug("Contact-to-tasks mapping completed", Object.keys(this.contactTaskMap).length);
     }
 
+    // force Outlook to open
+
+// Add this method to your TasksEmailer class
+openOutlookEmail(to, subject, body, cc = '') {
+  try {
+    // Try to use the Office.js API if available
+    if (typeof Office !== 'undefined' && Office.context && Office.context.mailbox) {
+      // Office.js is available
+      Office.context.mailbox.displayNewMessageForm({
+        toRecipients: [to],
+        ccRecipients: cc ? cc.split(',') : [],
+        subject: subject,
+        htmlBody: body
+      });
+      return true;
+    } else {
+      // Fall back to ActiveX for Windows/IE
+      if (window.ActiveXObject) {
+        try {
+          const outlookApp = new ActiveXObject("Outlook.Application");
+          const mailItem = outlookApp.CreateItem(0); // 0 = Mail item
+          mailItem.To = to;
+          if (cc) mailItem.CC = cc;
+          mailItem.Subject = subject;
+          mailItem.HTMLBody = body;
+          mailItem.Display(); // Display the email rather than sending it directly
+          return true;
+        } catch (e) {
+          console.error("ActiveX Outlook access failed:", e);
+        }
+      }
+      
+      // If all else fails, use mailto (which is what's currently happening)
+      const mailtoUrl = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}${cc ? `&cc=${encodeURIComponent(cc)}` : ''}`;
+      window.location.href = mailtoUrl;
+      return true;
+    }
+  } catch (error) {
+    console.error("Error opening email client:", error);
+    return false;
+  }
+}
     /**
      * Generate email data for all contacts
      * Each contact gets ONE email with ALL their tasks
