@@ -133,14 +133,7 @@
     </div>
     <div class="form-group">
         <label for="emailTemplate">Email Template:</label>
-        <textarea id="emailTemplate" placeholder="Hello {{name}},
-
-This is a reminder about your task: {{description}} that is due on {{due_date}}.
-
-Notes: {{notes}}
-
-Best regards,
-[Your Name]"></textarea>
+        <textarea id="emailTemplate" placeholder="Hello {{name}},\n\nThis is a reminder about your task: {{description}} that is due on {{due_date}}.\n\nNotes: {{notes}}\n\nBest regards,\n[Your Name]"></textarea>
     </div>
     
     <button id="refreshData">Refresh Data</button>
@@ -224,546 +217,189 @@ Best regards,
         logDebug("Page script starting");
     </script>
 
-    <!-- Include TasksEmailer class first -->
     <script>
         logDebug("Loading TasksEmailer class");
-        
 
-/**
- * TasksEmailer.js - A utility to generate emails from task data
- */
-class TasksEmailer {
-    constructor() {
-        this.contacts = [];
-        this.tasks = [];
-        this.contactTaskMap = {}; // New property to store contact-to-tasks mapping
-        logDebug("TasksEmailer instance created");
-    }
-
-    /**
-     * Load data from CSV files
-     * @returns {Promise} Promise resolving when data is loaded
-     */
-    async loadData() {
-        logDebug("TasksEmailer.loadData() called");
-        try {
-            // Load contacts
-            logDebug("Attempting to load contacts.csv");
-            const contactsResponse = await fetch('contacts.csv');
-            if (!contactsResponse.ok) {
-                throw new Error(`Failed to load contacts.csv: ${contactsResponse.status}`);
+        class TasksEmailer {
+            constructor() {
+                this.contacts = [];
+                this.tasks = [];
+                this.contactTaskMap = {}; 
+                logDebug("TasksEmailer instance created");
             }
-            const contactsCSV = await contactsResponse.text();
-            logDebug("Contacts CSV loaded, content length:", contactsCSV.length);
-            
-            this.contacts = this.parseContacts(contactsCSV);
-            logDebug("Contacts parsed", this.contacts.length);
-            
-            // Load tasks
-            logDebug("Attempting to load tasks.csv");
-            const tasksResponse = await fetch('tasks.csv');
-            if (!tasksResponse.ok) {
-                throw new Error(`Failed to load tasks.csv: ${tasksResponse.status}`);
-            }
-            const tasksCSV = await tasksResponse.text();
-            logDebug("Tasks CSV loaded, content length:", tasksCSV.length);
-            
-            this.tasks = this.parseTasks(tasksCSV);
-            logDebug("Tasks parsed", this.tasks.length);
-            
-            // Create the contact-to-tasks mapping
-            this.mapContactsToTasks();
-            logDebug("Contacts mapped to tasks", Object.keys(this.contactTaskMap).length);
-            
-            return {
-                contacts: this.contacts,
-                tasks: this.tasks,
-                contactTaskMap: this.contactTaskMap
-            };
-        } catch (error) {
-            logDebug("Error in loadData", error.message, true);
-            throw error;
-        }
-    }
 
-    /**
-     * Parse contacts from CSV text
-     * @param {string} csvText - CSV content with name, email format
-     * @returns {Array} Array of contact objects
-     */
-    parseContacts(csvText) {
-        logDebug("Parsing contacts CSV");
-        if (!csvText) return [];
-        
-        const lines = csvText.trim().split('\n');
-        logDebug("Contact lines found:", lines.length);
-        
-        return lines.map(line => {
-            const [name, email] = line.split(',').map(item => item.trim());
-            return { name, email };
-        }).filter(contact => contact.name && contact.email);
-    }
-
-    /**
-     * Parse tasks from CSV text
-     * @param {string} csvText - CSV content with task data
-     * @returns {Array} Array of task objects
-     */
-    parseTasks(csvText) {
-        logDebug("Parsing tasks CSV");
-        if (!csvText) return [];
-        
-        const lines = csvText.trim().split('\n');
-        logDebug("Task lines found:", lines.length);
-        
-        // For testing, if no lines or headers, create some sample data
-        if (lines.length <= 1) {
-            logDebug("No task data found, creating sample task", null, true);
-            return [
-                {
-                    status: "Not Done",
-                    due_date: "2025-04-15",
-                    who: "John Doe",
-                    cc: "Jane Smith",
-                    description: "Sample Task",
-                    notes: "This is a sample task for testing"
-                }
-            ];
-        }
-        
-        const headers = lines[0].split(',').map(header => header.trim());
-        logDebug("Task headers:", headers);
-        
-        return lines.slice(1).map(line => {
-            const values = line.split(',');
-            const task = {};
-            
-            headers.forEach((header, index) => {
-                task[header] = values[index] ? values[index].trim() : '';
-            });
-            
-            return task;
-        }).filter(task => task.description);
-    }
-
-    /**
-     * Find email address for a person's name
-     * @param {string} name - Person's name to look up
-     * @returns {string|null} Email address or null if not found
-     */
-    findEmailForPerson(name) {
-        logDebug("Looking up email for:", name);
-        
-        // If contacts are empty, create a test mapping for demo purposes
-        if (!this.contacts || this.contacts.length === 0) {
-            logDebug("No contacts found, using test mapping", null, true);
-            const testMapping = {
-                "john doe": "john@example.com",
-                "jane smith": "jane@example.com"
-            };
-            
-            const nameLower = name.toLowerCase().trim();
-            return testMapping[nameLower] || "test@example.com";
-        }
-        
-        const contact = this.contacts.find(c => 
-            c.name.toLowerCase() === name.toLowerCase().trim()
-        );
-        const result = contact ? contact.email : null;
-        logDebug("Email lookup result:", result);
-        return result;
-    }
-
-    /**
-     * Create a mapping from each contact to their assigned tasks
-     * Associates tasks with contacts based on 'who' and 'cc' fields
-     */
-    mapContactsToTasks() {
-        logDebug("Creating contact-to-tasks mapping");
-        this.contactTaskMap = {};
-        
-        // Initialize the map with all contacts (even those with no tasks)
-        this.contacts.forEach(contact => {
-            this.contactTaskMap[contact.name.toLowerCase()] = {
-                contact: contact,
-                assignedTasks: [], // Tasks where this person is in 'who' field
-                ccTasks: []        // Tasks where this person is in 'cc' field
-            };
-        });
-        
-        // Process each task and map it to the relevant contacts
-        this.tasks.forEach(task => {
-            // Handle assignees (who field)
-            const assignees = task.who ? task.who.split(';').map(name => name.trim()) : [];
-            assignees.forEach(assignee => {
-                const assigneeLower = assignee.toLowerCase();
-                if (this.contactTaskMap[assigneeLower]) {
-                    this.contactTaskMap[assigneeLower].assignedTasks.push({...task, assigneeRole: 'primary'});
-                } else {
-                    // Create entry for assignee not found in contacts
-                    const email = this.findEmailForPerson(assignee);
-                    if (email) {
-                        this.contactTaskMap[assigneeLower] = {
-                            contact: { name: assignee, email },
-                            assignedTasks: [{...task, assigneeRole: 'primary'}],
-                            ccTasks: []
-                        };
+            async loadData() {
+                logDebug("TasksEmailer.loadData() called");
+                try {
+                    // Load contacts
+                    logDebug("Attempting to load contacts.csv");
+                    const contactsResponse = await fetch('contacts.csv');
+                    if (!contactsResponse.ok) {
+                        throw new Error(`Failed to load contacts.csv: ${contactsResponse.status}`);
                     }
-                }
-            });
-            
-            // Handle CC people
-            const ccPeople = task.cc ? task.cc.split(';').map(name => name.trim()) : [];
-            ccPeople.forEach(person => {
-                const personLower = person.toLowerCase();
-                if (this.contactTaskMap[personLower]) {
-                    this.contactTaskMap[personLower].ccTasks.push({...task, assigneeRole: 'cc'});
-                } else {
-                    // Create entry for CC person not found in contacts
-                    const email = this.findEmailForPerson(person);
-                    if (email) {
-                        this.contactTaskMap[personLower] = {
-                            contact: { name: person, email },
-                            assignedTasks: [],
-                            ccTasks: [{...task, assigneeRole: 'cc'}]
-                        };
+                    const contactsCSV = await contactsResponse.text();
+                    logDebug("Contacts CSV loaded, content length:", contactsCSV.length);
+                    
+                    this.contacts = this.parseContacts(contactsCSV);
+                    logDebug("Contacts parsed", this.contacts.length);
+                    
+                    // Load tasks
+                    logDebug("Attempting to load tasks.csv");
+                    const tasksResponse = await fetch('tasks.csv');
+                    if (!tasksResponse.ok) {
+                        throw new Error(`Failed to load tasks.csv: ${tasksResponse.status}`);
                     }
+                    const tasksCSV = await tasksResponse.text();
+                    logDebug("Tasks CSV loaded, content length:", tasksCSV.length);
+                    
+                    this.tasks = this.parseTasks(tasksCSV);
+                    logDebug("Tasks parsed", this.tasks.length);
+                    
+                    this.mapContactsToTasks();
+                    logDebug("Contacts mapped to tasks", Object.keys(this.contactTaskMap).length);
+                    
+                    return {
+                        contacts: this.contacts,
+                        tasks: this.tasks,
+                        contactTaskMap: this.contactTaskMap
+                    };
+                } catch (error) {
+                    logDebug("Error in loadData", error.message, true);
+                    throw error;
                 }
-            });
-        });
-        
-        // Remove entries for contacts with no tasks
-        Object.keys(this.contactTaskMap).forEach(contactName => {
-            const entry = this.contactTaskMap[contactName];
-            if (entry.assignedTasks.length === 0 && entry.ccTasks.length === 0) {
-                delete this.contactTaskMap[contactName];
             }
-        });
-        
-        logDebug("Contact-to-tasks mapping completed", Object.keys(this.contactTaskMap).length);
-    }
 
-   // Function to save emails to a text file
-class EmailExporter {
-    static saveEmailsToTextFile(emails) {
-        if (!emails || emails.length === 0) {
-            console.error("No emails to save.");
-            alert("No emails have been generated yet.");
-            return;
-        }
-
-        let content = emails.map(email =>
-            `To: ${email.to}\nCC: ${email.cc || "None"}\nSubject: ${email.subject}\n\n${email.body}\n--------------\n`
-        ).join("\n");
-
-        const blob = new Blob([content], { type: "text/plain" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "generated_emails.txt";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-}
-
-// Attach event listener to the "Generate Emails" button
-document.getElementById('generateEmails').addEventListener('click', () => {
-    console.log("Generate Emails button clicked.");
-    
-    if (!window.emailsToSend || window.emailsToSend.length === 0) {
-        alert("No emails to generate. Please ensure you have tasks loaded.");
-        return;
-    }
-
-    EmailExporter.saveEmailsToTextFile(window.emailsToSend);
-});
-
-    /* REMOVE TO FOCUS ON TEXT VERSION 
-    // force Outlook to open
-
-// Add this method to your TasksEmailer class
-openOutlookEmail(to, subject, body, cc = '') {
-  try {
-    // Try to use the Office.js API if available
-    if (typeof Office !== 'undefined' && Office.context && Office.context.mailbox) {
-      // Office.js is available
-      Office.context.mailbox.displayNewMessageForm({
-        toRecipients: [to],
-        ccRecipients: cc ? cc.split(',') : [],
-        subject: subject,
-        htmlBody: body
-      });
-      return true;
-    } else {
-      // Fall back to ActiveX for Windows/IE
-      if (window.ActiveXObject) {
-        try {
-          const outlookApp = new ActiveXObject("Outlook.Application");
-          const mailItem = outlookApp.CreateItem(0); // 0 = Mail item
-          mailItem.To = to;
-          if (cc) mailItem.CC = cc;
-          mailItem.Subject = subject;
-          mailItem.HTMLBody = body;
-          mailItem.Display(); // Display the email rather than sending it directly
-          return true;
-        } catch (e) {
-          console.error("ActiveX Outlook access failed:", e);
-        }
-      }
-      
-      // If all else fails, use mailto (which is what's currently happening)
-      const mailtoUrl = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}${cc ? `&cc=${encodeURIComponent(cc)}` : ''}`;
-      window.location.href = mailtoUrl;
-      return true;
-    }
-  } catch (error) {
-    console.error("Error opening email client:", error);
-    return false;
-  }
-}
-    /**
-     * Generate email data for all contacts
-     * Each contact gets ONE email with ALL their tasks
-     * @param {string} subjectTemplate - Email subject template
-     * @param {string} bodyTemplate - Email body template
-     * @returns {Array} Array of email objects
-     *
-    generateEmailsForContacts(subjectTemplate, bodyTemplate) {
-        logDebug("Generating one email per contact with all tasks");
-        
-        const emails = [];
-        
-        try {
-            // For each contact with at least one task
-            Object.values(this.contactTaskMap).forEach(contactData => {
-                const { contact, assignedTasks, ccTasks } = contactData;
+            parseContacts(csvText) {
+                logDebug("Parsing contacts CSV");
+                if (!csvText) return [];
                 
-                // Skip if no tasks (shouldn't happen due to our filtering)
-                const allTasks = [...assignedTasks, ...ccTasks];
-                if (allTasks.length === 0) return;
+                const lines = csvText.trim().split('\n');
+                logDebug("Contact lines found:", lines.length);
                 
-                logDebug(`Creating email for ${contact.name} with ${allTasks.length} tasks`);
+                return lines.map(line => {
+                    const [name, email] = line.split(',').map(item => item.trim());
+                    return { name, email };
+                }).filter(contact => contact.name && contact.email);
+            }
+
+            parseTasks(csvText) {
+                logDebug("Parsing tasks CSV");
+                if (!csvText) return [];
                 
-                // Basic email properties
-                const email = {
-                    to: contact.email,
-                    toName: contact.name,
-                    subject: subjectTemplate.replace(/{{(\w+)}}/g, (match, variable) => {
-                        if (variable === 'name') return contact.name;
-                        // For other variables, use info from first task or leave as is
-                        return allTasks[0][variable] || match;
-                    }),
-                    assignedTasks,
-                    ccTasks,
-                    allTasks
-                };
+                const lines = csvText.trim().split('\n');
+                logDebug("Task lines found:", lines.length);
                 
-                // Generate body content that lists ALL tasks
-                let taskListHtml = '';
-                
-                // List assigned tasks first
-                if (assignedTasks.length > 0) {
-                    taskListHtml += '<h3>Your Assigned Tasks:</h3><ul>';
-                    assignedTasks.forEach(task => {
-                        taskListHtml += `<li><strong>${task.description}</strong> - Due: ${task.due_date || 'No due date'}`; 
-                        if (task.notes) taskListHtml += `<br>Notes: ${task.notes}`;
-                        taskListHtml += '</li>';
-                    });
-                    taskListHtml += '</ul>';
+                if (lines.length <= 1) {
+                    logDebug("No task data found, creating sample task", null, true);
+                    return [
+                        {
+                            status: "Not Done",
+                            due_date: "2025-04-15",
+                            who: "John Doe",
+                            cc: "Jane Smith",
+                            description: "Sample Task",
+                            notes: "This is a sample task for testing"
+                        }
+                    ];
                 }
                 
-                // Then list CC tasks
-                if (ccTasks.length > 0) {
-                    taskListHtml += '<h3>Tasks Where You Are CC\'d:</h3><ul>';
-                    ccTasks.forEach(task => {
-                        const primaryAssignees = task.who ? task.who.split(';').map(name => name.trim()).join(', ') : 'Unassigned';
-                        taskListHtml += `<li><strong>${task.description}</strong> - Assigned to: ${primaryAssignees}<br>Due: ${task.due_date || 'No due date'}`;
-                        if (task.notes) taskListHtml += `<br>Notes: ${task.notes}`;
-                        taskListHtml += '</li>';
+                const headers = lines[0].split(',').map(header => header.trim());
+                logDebug("Task headers:", headers);
+                
+                return lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    const task = {};
+                    
+                    headers.forEach((header, index) => {
+                        task[header] = values[index] ? values[index].trim() : '';
                     });
-                    taskListHtml += '</ul>';
+                    
+                    return task;
+                }).filter(task => task.description);
+            }
+
+            findEmailForPerson(name) {
+                logDebug("Looking up email for:", name);
+                if (!this.contacts || this.contacts.length === 0) {
+                    logDebug("No contacts found, using test mapping", null, true);
+                    const testMapping = {
+                        "john doe": "john@example.com",
+                        "jane smith": "jane@example.com"
+                    };
+                    const nameLower = name.toLowerCase().trim();
+                    return testMapping[nameLower] || "test@example.com";
                 }
                 
-                // Replace template variables in body
-                email.body = bodyTemplate.replace(/{{(\w+)}}/g, (match, variable) => {
-                    if (variable === 'name') return contact.name;
-                    if (variable === 'taskList') return taskListHtml;
-                    // For other variables, either use the first task or leave as is
-                    return allTasks[0][variable] || match;
+                const contact = this.contacts.find(c => c.name.toLowerCase() === name.toLowerCase().trim());
+                return contact ? contact.email : null;
+            }
+
+            mapContactsToTasks() {
+                logDebug("Creating contact-to-tasks mapping");
+                this.contactTaskMap = {};
+                
+                this.contacts.forEach(contact => {
+                    this.contactTaskMap[contact.name.toLowerCase()] = {
+                        contact: contact,
+                        assignedTasks: [],
+                        ccTasks: []
+                    };
                 });
                 
-                emails.push(email);
-            });
-            
-            logDebug(`Generated ${emails.length} emails, one per contact with tasks`);
-            return emails;
-            
-        } catch (error) {
-            logDebug("Error in generateEmailsForContacts", error.message, true);
-            console.error(error);
-            return [];
-        }
-    }
-
-
-            /**
-             * Open email client with prepared email
-             * @param {string} to - Recipient email
-             * @param {string} cc - CC recipients
-             * @param {string} subject - Email subject
-             * @param {string} body - Email body
-             
-    openEmailClient(to, cc, subject, body) {
-                logDebug("Opening email client with params:", { to, cc, subject: subject.substring(0, 30) + "..." });
-                
-                try {
-                    // Create a hidden link element for the mailto
-                    const mailtoLink = document.createElement('a');
-                    mailtoLink.style.display = 'none';
-                    document.body.appendChild(mailtoLink);
-                    
-                    // Construct mailto URL
-                    let mailtoUrl = `mailto:${to}`;
-                    
-                    const params = [];
-                    if (cc) params.push(`cc=${cc}`);
-                    if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
-                    if (body) params.push(`body=${encodeURIComponent(body)}`);
-                    
-                    if (params.length > 0) {
-                        mailtoUrl += '?' + params.join('&');
-                    }
-                    
-                    logDebug("Opening mailto link (length):", mailtoUrl.length);
-                    
-                    // Use the link to open the email client
-                    mailtoLink.href = mailtoUrl;
-                    mailtoLink.target = "_blank"; // Try opening in new tab to avoid navigation issues
-                    
-                    // Alert the user before clicking (helps debug if email client isn't opening)
-                    alert("Opening email client. If nothing happens, please check your browser's email client settings.");
-                    
-                    // Simulate a click
-                    mailtoLink.click();
-                    
-                    // Clean up the DOM
-                    setTimeout(() => {
-                        document.body.removeChild(mailtoLink);
-                    }, 100);
-                    
-                    logDebug("Email client opened successfully");
-                    return true;
-                } catch (error) {
-                    logDebug("Error opening email client:", error.message, true);
-                    console.error(error);
-                    alert("Error opening email client: " + error.message);
-                    return false;
-                }
-            }
-
-            /**
-             * Test the email client opening functionality
-           
-    testEmailClient() {
-                logDebug("Testing email client functionality");
-                
-                const testParams = {
-                    to: "test@example.com",
-                    cc: "",
-                    subject: "Test Email",
-                    body: "This is a test email to verify the email client functionality."
-                };
-                
-                this.openEmailClient(
-                    testParams.to, 
-                    testParams.cc, 
-                    testParams.subject, 
-                    testParams.body
-                );
-            }
-*/
-            /**
-             * Display tasks in a table
-             * @param {string} containerId - ID of container element
-             */
-            displayTasks(containerId) {
-                logDebug("Displaying tasks in container:", containerId);
-                logDebug("Tasks to display:", this.tasks.length);
-                
-                const container = document.getElementById(containerId);
-                if (!container) {
-                    logDebug("Container not found:", containerId, true);
-                    return;
-                }
-                
-                if (!this.tasks || this.tasks.length === 0) {
-                    container.innerHTML = '<div class="error">No tasks found. Please check tasks.csv</div>';
-                    return;
-                }
-                
-                try {
-                    // Create table
-                    let html = `
-                        <table id="taskTable">
-                            <thead>
-                                <tr>
-                                    <th>Status</th>
-                                    <th>Due Date</th>
-                                    <th>Who</th>
-                                    <th>CC</th>
-                                    <th>Description</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
-                    
-                    // Add rows
-                    this.tasks.forEach((task, index) => {
-                        logDebug(`Adding task ${index + 1} to table:`, task);
-                        const statusClass = task.status ? `status-${task.status.toLowerCase().replace(/\s+/g, '-')}` : '';
-                        html += `
-                            <tr>
-                                <td>
-                                    <span class="status-badge ${statusClass}">
-                                        ${task.status || 'Unknown'}
-                                    </span>
-                                </td>
-                                <td>${task.due_date || ''}</td>
-                                <td>${task.who || ''}</td>
-                                <td>${task.cc || ''}</td>
-                                <td>${task.description || ''}</td>
-                                <td>${task.notes || ''}</td>
-                            </tr>
-                        `;
+                this.tasks.forEach(task => {
+                    const assignees = task.who ? task.who.split(';').map(name => name.trim()) : [];
+                    assignees.forEach(assignee => {
+                        const assigneeLower = assignee.toLowerCase();
+                        if (this.contactTaskMap[assigneeLower]) {
+                            this.contactTaskMap[assigneeLower].assignedTasks.push({...task, assigneeRole: 'primary'});
+                        }
                     });
-                    
-                    html += '</tbody></table>';
-                    container.innerHTML = html;
-                    logDebug("Task table displayed");
-                } catch (error) {
-                    logDebug("Error displaying tasks:", error.message, true);
-                    console.error(error);
-                    container.innerHTML = `<div class="error">Error displaying tasks: ${error.message}</div>`;
-                }
+
+                    const ccPeople = task.cc ? task.cc.split(';').map(name => name.trim()) : [];
+                    ccPeople.forEach(person => {
+                        const personLower = person.toLowerCase();
+                        if (this.contactTaskMap[personLower]) {
+                            this.contactTaskMap[personLower].ccTasks.push({...task, assigneeRole: 'cc'});
+                        }
+                    });
+                });
+                
+                Object.keys(this.contactTaskMap).forEach(contactName => {
+                    const entry = this.contactTaskMap[contactName];
+                    if (entry.assignedTasks.length === 0 && entry.ccTasks.length === 0) {
+                        delete this.contactTaskMap[contactName];
+                    }
+                });
+                
+                logDebug("Contact-to-tasks mapping completed", Object.keys(this.contactTaskMap).length);
+            }
+
+            generateEmailsForContacts(subjectTemplate, bodyTemplate) {
+                logDebug("Generating emails for contacts");
+                const emails = [];
+                
+                Object.keys(this.contactTaskMap).forEach(contactName => {
+                    const contactData = this.contactTaskMap[contactName];
+                    const emailContent = bodyTemplate.replace("{{name}}", contactData.contact.name)
+                                                     .replace("{{description}}", contactData.assignedTasks[0]?.description || "No Task")
+                                                     .replace("{{due_date}}", contactData.assignedTasks[0]?.due_date || "No Due Date")
+                                                     .replace("{{notes}}", contactData.assignedTasks[0]?.notes || "No Notes");
+
+                    emails.push({
+                        to: contactData.contact.email,
+                        cc: contactData.ccTasks.map(task => task.contact.email).join(", "),
+                        subject: subjectTemplate.replace("{{description}}", contactData.assignedTasks[0]?.description || "No Task"),
+                        body: emailContent
+                    });
+                });
+                
+                return emails;
             }
         }
-        
-        logDebug("TasksEmailer class loaded");
-    </script>
-    
-    <!-- Main application script -->
-    <script>
-        logDebug("Main application script starting");
-        
-        // Initialize the TasksEmailer
+
         const tasksEmailer = new TasksEmailer();
-        logDebug("tasksEmailer instance created");
-        
-        // Create a global variable to store emails
         window.emailsToSend = [];
-        
-        // Load data from CSV files
+
         async function loadData() {
             logDebug("loadData() function called");
             const statusElement = document.getElementById('dataStatus');
@@ -771,213 +407,79 @@ openOutlookEmail(to, subject, body, cc = '') {
             statusElement.className = 'loading';
             
             try {
-                // Load data using the TasksEmailer class
-                logDebug("Calling tasksEmailer.loadData()");
                 await tasksEmailer.loadData();
-                logDebug("Data loaded successfully");
-                
-                // Display tasks
-                logDebug("Displaying tasks");
                 tasksEmailer.displayTasks('tasksContainer');
-                
                 statusElement.innerHTML = `Successfully loaded ${tasksEmailer.contacts.length} contacts and ${tasksEmailer.tasks.length} tasks.`;
                 statusElement.className = 'success';
-                logDebug("Data loading complete");
             } catch (error) {
                 logDebug("Error in loadData", error.message, true);
-                console.error('Error loading data:', error);
                 statusElement.innerHTML = `Error loading data: ${error.message}`;
                 statusElement.className = 'error';
-                
-                // Try creating some sample data for testing
-                logDebug("Creating sample data for testing");
-                tasksEmailer.tasks = [
-                    {
-                        status: "Not Done",
-                        due_date: "2025-04-15",
-                        who: "John Doe",
-                        cc: "Jane Smith",
-                        description: "Sample Task",
-                        notes: "This is a sample task for testing"
-                    }
-                ];
-                tasksEmailer.contacts = [
-                    { name: "John Doe", email: "john@example.com" },
-                    { name: "Jane Smith", email: "jane@example.com" }
-                ];
-                
-                // Display sample tasks
-                tasksEmailer.displayTasks('tasksContainer');
             }
         }
-        
-        // Generate email previews
+
         function generateEmailPreviews() {
-            logDebug("generateEmailPreviews() function called");
-            
             const subjectTemplate = document.getElementById('emailSubject').value || 'Task Reminder';
             const bodyTemplate = document.getElementById('emailTemplate').value || 'Hello {{name}},\n\nThis is a reminder about your task.';
             
-            logDebug("Email templates:", { subject: subjectTemplate, body: bodyTemplate });
-            
             const previewContainer = document.getElementById('emailPreviewContainer');
-            if (!previewContainer) {
-                logDebug("Preview container not found", null, true);
-                return;
-            }
-            
             previewContainer.innerHTML = '<div class="loading">Generating email previews...</div>';
             
             try {
-                if (!tasksEmailer.tasks || tasksEmailer.tasks.length === 0) {
-                    logDebug("No tasks available", null, true);
-                    previewContainer.innerHTML = '<div class="error">No tasks available. Please check if data loaded correctly.</div>';
-                    // Create sample task for testing
-                    tasksEmailer.tasks = [
-                        {
-                            status: "Not Done",
-                            due_date: "2025-04-15",
-                            who: "Test User",
-                            description: "Sample Task",
-                            notes: "This is a sample task for testing"
-                        }
-                    ];
-                }
-                
-                logDebug("Generating emails");
-                // Generate emails using the TasksEmailer class
                 const emails = tasksEmailer.generateEmailsForContacts(subjectTemplate, bodyTemplate);
                 
-                if (!emails || emails.length === 0) {
-                    logDebug("No emails generated", null, true);
-                    previewContainer.innerHTML = '<div class="error">No emails generated. Creating a test email preview.</div>';
-                    
-                    // Create a test email for preview
-                    emails.push({
-                        to: "test@example.com",
-                        toName: "Test User",
-                        cc: "",
-                        subject: "Test Task Reminder",
-                        body: "This is a test email body for preview.",
-                        task: { description: "Test Task" },
-                        assignee: "Test User"
-                    });
-                }
-                
-                // Store emails in the global variable
                 window.emailsToSend = emails;
                 
-                logDebug("Displaying email previews, count:", emails.length);
-                // Display email previews
                 previewContainer.innerHTML = '';
                 
                 emails.forEach((email, index) => {
-                    logDebug(`Creating preview for email ${index + 1}:`, email);
-                    
-                    try {
-                        const emailDiv = document.createElement('div');
-                        emailDiv.className = 'email-preview';
-                        
-                        emailDiv.innerHTML = `
-                            <strong>To:</strong> ${email.toName} &lt;${email.to}&gt;<br>
-                            ${email.cc ? `<strong>CC:</strong> ${email.cc}<br>` : ''}
-                            <strong>Subject:</strong> ${email.subject}<br>
-                            <strong>Body:</strong><br>
-                            <pre class="email-body">${email.body}</pre>
-                            <button class="send-email-btn" data-index="${index}">Open in Email Client</button>
-                        `;
-                        
-                        previewContainer.appendChild(emailDiv);
-                        logDebug(`Preview ${index + 1} added to container`);
-                    } catch (error) {
-                        logDebug(`Error creating preview for email ${index + 1}:`, error.message, true);
-                    }
+                    const emailDiv = document.createElement('div');
+                    emailDiv.className = 'email-preview';
+                    emailDiv.innerHTML = `
+                        <strong>To:</strong> ${email.to}<br>
+                        ${email.cc ? `<strong>CC:</strong> ${email.cc}<br>` : ''}
+                        <strong>Subject:</strong> ${email.subject}<br>
+                        <strong>Body:</strong><br>
+                        <pre class="email-body">${email.body}</pre>
+                    `;
+                    previewContainer.appendChild(emailDiv);
                 });
-                
-                logDebug("Adding event listeners to send buttons");
-                // Add event listeners to send email buttons
-                const sendButtons = document.querySelectorAll('.send-email-btn');
-                logDebug(`Found ${sendButtons.length} send buttons`);
-                
-                sendButtons.forEach((button, btnIndex) => {
-                    logDebug(`Adding click listener to button ${btnIndex + 1}`);
-                    button.addEventListener('click', (e) => {
-                        const index = parseInt(e.target.getAttribute('data-index'));
-                        logDebug("Send email button clicked for index:", index);
-                        
-                        const email = window.emailsToSend[index];
-                        if (email) {
-                            TasksEmailer.openEmailClient(email.to, email.cc, email.subject, email.body);
-                        } else {
-                            logDebug("Error: Email not found at index", index, true);
-                            alert("Error: Email not found!");
-                        }
-                    });
-                });
-                
-                logDebug("Email previews displayed successfully");
-                
             } catch (error) {
-                logDebug("Error generating emails", error.message, true);
-                //console.error('Error generating emails:', error);
                 previewContainer.innerHTML = `<div class="error">Error generating emails: ${error.message}</div>`;
-                createTestPreview();
             }
         }
-        
-        // Set up event listeners
+
+        document.getElementById('generateEmails').addEventListener('click', generateEmailPreviews);
+        document.getElementById('refreshData').addEventListener('click', loadData);
+
         logDebug("Setting up event listeners");
-        
-        const refreshButton = document.getElementById('refreshData');
-        if (refreshButton) {
-            refreshButton.addEventListener('click', () => {
-                logDebug("Refresh button clicked");
-                loadData();
-            });
-            logDebug("Refresh button listener added");
-        } else {
-            logDebug("ERROR: Refresh button not found", null, true);
-        }
-        
-        const generateButton = document.getElementById('generateEmails');
-        if (generateButton) {
-            generateButton.addEventListener('click', () => {
-                logDebug("Generate emails button clicked");
-                generateEmailPreviews();
-            });
-            logDebug("Generate button listener added");
-        } else {
-            logDebug("ERROR: Generate button not found", null, true);
-        }
-        
-        const testEmailButton = document.getElementById('testEmailClient');
-        if (testEmailButton) {
-            testEmailButton.addEventListener('click', () => {
-                logDebug("Test email client button clicked");
-                tasksEmailer.testEmailClient(); // Calling on the INSTANCE by using "tasks" and not "Tasks"
-            });
-            logDebug("Test email button listener added");
-        } else {
-            logDebug("ERROR: Test email button not found", null, true);
-        }
-        
-        // Load data on page load
-        logDebug("Setting up DOMContentLoaded listener");
-        window.addEventListener('DOMContentLoaded', () => {
-            logDebug("DOMContentLoaded event fired");
-            loadData();
-        });
-        
-        // Also try loading immediately (in case DOMContentLoaded already fired)
-        logDebug("Attempting to load data immediately");
-        if (document.readyState === 'loading') {
-            logDebug("Document still loading, will wait for DOMContentLoaded");
-        } else {
-            logDebug("Document already loaded, calling loadData now");
-            loadData();
-        }
-        
-        logDebug("Main application script completed");
     </script>
+
+    <script>
+        // Function to open the default mail client automatically with pre-filled content for emails
+        function sendEmailsInOutlook() {
+            const emails = window.emailsToSend;
+            if (emails.length === 0) {
+                alert("No emails to send.");
+                return;
+            }
+
+            let mailtoLinks = emails.map(email => {
+                const subject = encodeURIComponent(email.subject);
+                const body = encodeURIComponent(email.body.replace(/\n/g, "%0D%0A"));
+                const to = email.to;
+                const cc = email.cc ? encodeURIComponent(email.cc) : "";
+                return `mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`;
+            });
+
+            // Open the email client with all emails
+            mailtoLinks.forEach(link => {
+                window.open(link, "_blank");
+            });
+        }
+
+        document.getElementById('testEmailClient').addEventListener('click', sendEmailsInOutlook);
+    </script>
+
 </body>
 </html>
