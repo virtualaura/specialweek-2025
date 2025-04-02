@@ -443,6 +443,41 @@ class TasksEmailer {
         logDebug("Contact-to-tasks mapping completed", Object.keys(this.contactTaskMap).length);
     }
 
+    class EmailExporter {
+  static saveEmailsToTextFile(emails) {
+    let content = emails.map(email => 
+      `To: ${email.to}\nCC: ${email.cc || "None"}\nSubject: ${email.subject}\n\n${email.body}\n--------------\n`
+    ).join("\n");
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "emails.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
+// Usage Example
+const emails = [
+  {
+    to: "test@example.com",
+    cc: "",
+    subject: "Test Email 1",
+    body: "This is the first test email."
+  },
+  {
+    to: "another@example.com",
+    cc: "cc@example.com",
+    subject: "Test Email 2",
+    body: "This is another test email."
+  }
+];
+
+EmailExporter.saveEmailsToTextFile(emails);
+    
+    /* REMOVE TO FOCUS ON TEXT VERSION 
     // force Outlook to open
 
 // Add this method to your TasksEmailer class
@@ -491,7 +526,7 @@ openOutlookEmail(to, subject, body, cc = '') {
      * @param {string} subjectTemplate - Email subject template
      * @param {string} bodyTemplate - Email body template
      * @returns {Array} Array of email objects
-     */
+     *
     generateEmailsForContacts(subjectTemplate, bodyTemplate) {
         logDebug("Generating one email per contact with all tasks");
         
@@ -576,7 +611,7 @@ openOutlookEmail(to, subject, body, cc = '') {
              * @param {string} cc - CC recipients
              * @param {string} subject - Email subject
              * @param {string} body - Email body
-             */
+             
     openEmailClient(to, cc, subject, body) {
                 logDebug("Opening email client with params:", { to, cc, subject: subject.substring(0, 30) + "..." });
                 
@@ -627,7 +662,7 @@ openOutlookEmail(to, subject, body, cc = '') {
 
             /**
              * Test the email client opening functionality
-             */
+           
     testEmailClient() {
                 logDebug("Testing email client functionality");
                 
@@ -645,7 +680,7 @@ openOutlookEmail(to, subject, body, cc = '') {
                     testParams.body
                 );
             }
-
+*/
             /**
              * Display tasks in a table
              * @param {string} containerId - ID of container element
