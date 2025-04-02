@@ -133,7 +133,7 @@
     </div>
     <div class="form-group">
         <label for="emailTemplate">Email Template:</label>
-        <textarea id="emailTemplate" placeholder="Hello {{name}},\n\nThis is a reminder about your task: {{description}} that is due on {{due_date}}.\n\nNotes: {{notes}}\n\nBest regards,\n[Your Name]"></textarea>
+        <textarea id="emailTemplate" placeholder="Hello {{name}},\n\nThis is a reminder about your tasks.">{{emailBodyTemplate}}</textarea>
     </div>
     
     <button id="refreshData">Refresh Data</button>
@@ -318,43 +318,58 @@
                 });
             }
 
-            generateEmails(subjectTemplate, bodyTemplate) {
-                const emails = [];
-                Object.keys(this.contactTaskMap).forEach(contactName => {
-                    const contactData = this.contactTaskMap[contactName];
-                    const emailContent = bodyTemplate.replace("{{name}}", contactData.contact.name)
-                                                     .replace("{{description}}", contactData.assignedTasks[0]?.description || "No Task")
-                                                     .replace("{{due_date}}", contactData.assignedTasks[0]?.due_date || "No Due Date")
-                                                     .replace("{{notes}}", contactData.assignedTasks[0]?.notes || "No Notes");
-
-                    emails.push({
-                        to: contactData.contact.email,
-                        cc: contactData.ccTasks.map(task => task.contact.email).join(", "),
-                        subject: subjectTemplate.replace("{{description}}", contactData.assignedTasks[0]?.description || "No Task"),
-                        body: emailContent
-                    });
+            generateEmailBodyForContact(contactName) {
+                const contactData = this.contactTaskMap[contactName];
+                const tasks = [...contactData.assignedTasks, ...contactData.ccTasks]
+                    .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));  // Sort tasks by due date
+                
+                let taskList = '';
+                tasks.forEach(task => {
+                    if (task.status === 'Not Done') {
+                        taskList += `
+                            <input type="checkbox" disabled> ${task.description} - Due: ${task.due_date} <br>
+                        `;
+                    }
                 });
-                return emails;
+
+                const emailBody = `
+                    Hello ${contactData.contact.name},<br><br>
+                    This is a reminder about your tasks:<br>
+                    ${taskList}<br><br>
+                    Best regards,<br>
+                    [Your Name]
+                `;
+
+                return emailBody;
             }
 
-            saveEmailsToTextFile(emails) {
-                if (!emails || emails.length === 0) {
-                    console.error("No emails to save.");
-                    alert("No emails have been generated yet.");
-                    return;
-                }
+            async sendEmails() {
+                const emailsToSend = [];
+                Object.keys(this.contactTaskMap).forEach(contactName => {
+                    const contactData = this.contactTaskMap[contactName];
+                    const subject = `Task Reminder: ${contactData.assignedTasks[0]?.description || "No Tasks"}`;
+                    const body = this.generateEmailBodyForContact(contactName);
+                    
+                    // Prepare email using EmailJS
+                    emailsToSend.push({
+                        to: contactData.contact.email,
+                        subject: subject,
+                        body: body,
+                    });
+                });
 
-                let content = emails.map(email =>
-                    `To: ${email.to}\nCC: ${email.cc || "None"}\nSubject: ${email.subject}\n\n${email.body}\n--------------\n`
-                ).join("\n");
-
-                const blob = new Blob([content], { type: "text/plain" });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "generated_emails.txt";
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // Send emails using EmailJS
+                emailsToSend.forEach(email => {
+                    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+                        to_email: email.to,
+                        subject: email.subject,
+                        message: email.body,
+                    }).then((response) => {
+                        logDebug('Email sent successfully', response);
+                    }).catch((error) => {
+                        logDebug('Failed to send email', error, true);
+                    });
+                });
             }
         }
 
@@ -376,64 +391,14 @@
             }
         }
 
-        function generateEmailPreviews() {
-            const subjectTemplate = document.getElementById('emailSubject').value || 'Task Reminder';
-            const bodyTemplate = document.getElementById('emailTemplate').value || 'Hello {{name}},\n\nThis is a reminder about your task.';
-            
-            const previewContainer = document.getElementById('emailPreviewContainer');
-            previewContainer.innerHTML = '<div class="loading">Generating email previews...</div>';
-            
-            try {
-                const emails = tasksEmailer.generateEmails(subjectTemplate, bodyTemplate);
-                window.emailsToSend = emails;
-                
-                previewContainer.innerHTML = '';
-                
-                emails.forEach((email, index) => {
-                    const emailDiv = document.createElement('div');
-                    emailDiv.className = 'email-preview';
-                    emailDiv.innerHTML = `
-                        <strong>To:</strong> ${email.to}<br>
-                        ${email.cc ? `<strong>CC:</strong> ${email.cc}<br>` : ''}
-                        <strong>Subject:</strong> ${email.subject}<br>
-                        <strong>Body:</strong><br>
-                        <pre class="email-body">${email.body}</pre>
-                    `;
-                    previewContainer.appendChild(emailDiv);
-                });
-            } catch (error) {
-                previewContainer.innerHTML = `<div class="error">Error generating emails: ${error.message}</div>`;
-            }
-        }
-
         document.getElementById('generateEmails').addEventListener('click', () => {
-            if (window.emailsToSend && window.emailsToSend.length > 0) {
-                tasksEmailer.saveEmailsToTextFile(window.emailsToSend);
-            } else {
-                generateEmailPreviews();
-            }
+            tasksEmailer.sendEmails();
         });
 
         document.getElementById('refreshData').addEventListener('click', loadData);
 
-        // Open email client with mailto link
-        document.getElementById('testEmailClient').addEventListener('click', () => {
-            const emails = window.emailsToSend;
-            if (emails && emails.length > 0) {
-                const email = emails[0]; // Use the first email for testing
-                const subject = encodeURIComponent(email.subject);
-                const body = encodeURIComponent(email.body.replace(/\n/g, "%0D%0A"));
-                const to = email.to;
-                const cc = email.cc ? encodeURIComponent(email.cc) : "";
-                const mailtoLink = `mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`;
-                window.location.href = mailtoLink; // Trigger the mail client with the link
-            } else {
-                alert("No emails to send.");
-            }
-        });
     </script>
 
 </body>
-
     
 </html>
