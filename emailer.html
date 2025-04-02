@@ -537,7 +537,7 @@ class TasksEmailer {
              * @param {string} subject - Email subject
              * @param {string} body - Email body
              */
-            static openEmailClient(to, cc, subject, body) {
+            openEmailClient(to, cc, subject, body) {
                 logDebug("Opening email client with params:", { to, cc, subject: subject.substring(0, 30) + "..." });
                 
                 try {
