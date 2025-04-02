@@ -876,7 +876,7 @@ class TasksEmailer {
         if (testEmailButton) {
             testEmailButton.addEventListener('click', () => {
                 logDebug("Test email client button clicked");
-                TasksEmailer.testEmailClient();
+                tasksEmailer.testEmailClient(); // Calling on the INSTANCE by using "tasks" and not "Tasks"
             });
             logDebug("Test email button listener added");
         } else {
