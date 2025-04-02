@@ -395,6 +395,57 @@
                 
                 return emails;
             }
+
+            // Method to display tasks in the page
+            displayTasks(containerId) {
+                logDebug("Displaying tasks in container:", containerId);
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    logDebug("Container not found:", containerId, true);
+                    return;
+                }
+
+                if (!this.tasks || this.tasks.length === 0) {
+                    container.innerHTML = '<div class="error">No tasks found. Please check tasks.csv</div>';
+                    return;
+                }
+                
+                let html = `
+                    <table id="taskTable">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                                <th>Who</th>
+                                <th>CC</th>
+                                <th>Description</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                this.tasks.forEach((task, index) => {
+                    const statusClass = task.status ? `status-${task.status.toLowerCase().replace(/\s+/g, '-')}` : '';
+                    html += `
+                        <tr>
+                            <td>
+                                <span class="status-badge ${statusClass}">
+                                    ${task.status || 'Unknown'}
+                                </span>
+                            </td>
+                            <td>${task.due_date || ''}</td>
+                            <td>${task.who || ''}</td>
+                            <td>${task.cc || ''}</td>
+                            <td>${task.description || ''}</td>
+                            <td>${task.notes || ''}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            }
         }
 
         const tasksEmailer = new TasksEmailer();
@@ -482,6 +533,5 @@
     </script>
 
 </body>
-
     
 </html>
