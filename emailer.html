@@ -768,7 +768,7 @@ class TasksEmailer {
                 
                 logDebug("Generating emails");
                 // Generate emails using the TasksEmailer class
-                const emails = tasksEmailer.generateEmailsForTasks(subjectTemplate, bodyTemplate);
+                const emails = tasksEmailer.generateEmailsForContacts(subjectTemplate, bodyTemplate);
                 
                 if (!emails || emails.length === 0) {
                     logDebug("No emails generated", null, true);
@@ -841,7 +841,7 @@ class TasksEmailer {
                 
             } catch (error) {
                 logDebug("Error generating emails", error.message, true);
-                console.error('Error generating emails:', error);
+                //console.error('Error generating emails:', error);
                 previewContainer.innerHTML = `<div class="error">Error generating emails: ${error.message}</div>`;
                 createTestPreview();
             }
