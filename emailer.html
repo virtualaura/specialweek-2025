@@ -228,9 +228,7 @@ Best regards,
     <script>
         logDebug("Loading TasksEmailer class");
         
-        /**
-         * TasksEmailer.js - A utility to generate emails from task data
-         */
+
 /**
  * TasksEmailer.js - A utility to generate emails from task data
  */
@@ -528,7 +526,7 @@ class TasksEmailer {
             return [];
         }
     }
-}
+
 
             /**
              * Open email client with prepared email
@@ -537,7 +535,7 @@ class TasksEmailer {
              * @param {string} subject - Email subject
              * @param {string} body - Email body
              */
-            openEmailClient(to, cc, subject, body) {
+    openEmailClient(to, cc, subject, body) {
                 logDebug("Opening email client with params:", { to, cc, subject: subject.substring(0, 30) + "..." });
                 
                 try {
@@ -588,7 +586,7 @@ class TasksEmailer {
             /**
              * Test the email client opening functionality
              */
-            static testEmailClient() {
+    testEmailClient() {
                 logDebug("Testing email client functionality");
                 
                 const testParams = {
