@@ -415,8 +415,25 @@
         });
 
         document.getElementById('refreshData').addEventListener('click', loadData);
+
+        // Open email client with mailto link
+        document.getElementById('testEmailClient').addEventListener('click', () => {
+            const emails = window.emailsToSend;
+            if (emails && emails.length > 0) {
+                const email = emails[0]; // Use the first email for testing
+                const subject = encodeURIComponent(email.subject);
+                const body = encodeURIComponent(email.body.replace(/\n/g, "%0D%0A"));
+                const to = email.to;
+                const cc = email.cc ? encodeURIComponent(email.cc) : "";
+                const mailtoLink = `mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`;
+                window.location.href = mailtoLink; // Trigger the mail client with the link
+            } else {
+                alert("No emails to send.");
+            }
+        });
     </script>
 
 </body>
+
     
 </html>
